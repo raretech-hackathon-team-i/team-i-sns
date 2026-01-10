@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ja">
+        <head>
+		<meta charset="UTF-8">
+		<title>ログイン | 入門アプリ</title>
+                <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+        </head>
+
+        <body>
+                <h1>入門SNS</h1>
+
+		<form method="post" action="{{ url_for('signin_process') }}">
+			<div>
+				<label>	メールアドレス</label>
+				<input type="text" name="email">
+			</div>
+
+			<div>
+				<label>	パスワード入力 </label>
+				<input type="password" name="password">
+			</div>
+			
+			<button type="submit">ログインボタン（投稿ページへ）</button>
+		</form>
+
+		<a href="{{ url_for('posts_view') }}"> 投稿ページへ </a>
+        </body>
+</html>

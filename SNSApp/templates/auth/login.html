@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8">
+		<title> ログイン | 入門SNS</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+	</head>
+
+	<body>
+		<h1>入門SNS</h1>
+		<p>「ログインして投稿を始めましょう」</p>
+
+		#必要ならflash表示を入れる
+		<a href="{{ url_for('signin_view') }}"> ログインへのリンク</a>
+		<a href="{{ url_for('signup_view') }}"> 新規登録へのリンク</a>
+	</body>
+</html>
