@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}新規登録{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css')}}">{% endblock %}
+{% block content %}
+<h1>新規登録</h1>
+<form method="POST" action="{{ url_for('signup_process')}}">
+	<label>	メールアドレス
+		<input type="email" name="email" required>
+	</label>
+	<label>パスワード
+		<input type="password" name="password" required>
+	</label>
+	<input type="submit" value="新規登録">
+	<p><a class="btn" href="{{ url_for('signin_view')}}">ログインに戻る</a></p>
+</form>
+{% endblock %}
