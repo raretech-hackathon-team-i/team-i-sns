@@ -1,51 +1,72 @@
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from flask import abort
+import pymysql
+from util.DB import DB
 
-db = SQLAlchemy()
+db_pool = None
 
-class User(db.Model):
-    __tablename__ = "users"
+def get_db_pool():
+    global db_pool
+    if db_pool is None:
+        db_pool = DB.init_db_pool()
+    return db_pool
 
-    id = db.Column(db.BigInteger, primary_key=True)
-    name = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), nullable=False, unique=True)
-    password = db.Column(db.String(255), nullable=False)
+# ユーザークラス
+class User:
+    @classmethod
+    def create(cls, name, email, password):
+        pool = get_db_pool()
+        conn = pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "INSERT INTO users (name, email, password) VALUES (%s, %s, %s);"
+                cur.execute(sql, (name, email, password))
+            conn.commit()
+            return cur.lastrowid
+        except pymysql.Error as e:
+            print(f"エラーが発生しています：{e}")
+            abort(500)
+        finally:
+            pool.release(conn)
+    
+    # メールから既存ユーザーを発見
+    @classmethod
+    def find_by_email(cls, email):
+        pool = get_db_pool()
+        conn = pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "SELECT * FROM users WHERE email=%s;"
+                cur.execute(sql, (email,))
+                user = cur.fetchone()
+                return user
+        except pymysql.Error as e:
+            print(f"エラーが発生しています：{e}")
+            abort(500)
+        finally:
+            pool.release(conn)
 
-    icon_file_name = db.Column(db.String(255))
-    introduce = db.Column(db.Text)
+    # IDから名前を取得
+    @classmethod
+    def get_name_by_id(cls, user_id):
+        pool = get_db_pool()
+        conn = pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "SELECT name FROM users WHERE id=%s;"
+                cur.execute(sql, (user_id,))
+                user = cur.fetchone()
+            return user["name"] if user else None
+        except pymysql.Error as e:
+            print(f"エラーが発生しています：{e}")
+            abort(500)
+        finally:
+            pool.release(conn)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
 
-class Post(db.Model):
-    __tablename__ = "posts"
+# 投稿クラス
+class Post:
+    pass
 
-    id = db.Column(db.BigInteger, primary_key=True)
-    user_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=False)
-    body = db.Column(db.Text, nullable=False)
-
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
-
-    user = db.relationship("User", backref="posts")
-
-class Comment(db.Model):
-    __tablename__ = "comments"
-
-    id = db.Column(db.BigInteger, primary_key=True)
-    user_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=False)
-    post_id = db.Column(db.BigInteger, db.ForeignKey("posts.id"), nullable=False)
-    comment = db.Column(db.Text, nullable=False)
-
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
-
-    user = db.relationship("User", backref="comments")
-    post = db.relationship("Post", backref="comments")
-
+# コメントクラス
+class Comment:
+    pass
