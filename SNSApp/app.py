@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
+from datetime import timedelta
+from models import User, Post, Comment, Like
 
 app = Flask(__name__)
 
@@ -23,10 +25,19 @@ def signin_process():
     password = request.form.get("password", "")
     return redirect(url_for("posts_view"))
 
-# posts.html
-@app.get("/posts")
+# 投稿一覧ページ
+@app.route("/posts", method=['GET')
 def posts_view():
-    return "posts page" #未完成です。
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('signin_view'))
+    else:
+        posts = Post.get_all() 
+        for post in posts:
+        post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
+        post['user_name'] = User.get_name_by_id(post['user_id'])
+        post['like_count'] = Like.get_count_by_post_id(post['id'])
+    return render_template('post/posts.html', posts=posts, user_id=user_id)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
