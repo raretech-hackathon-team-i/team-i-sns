@@ -6,11 +6,12 @@ import uuid
 import re
 import os
 
-from models import User , Post, Comment, get_db_pool
+from models import User , Post, Comment, get_db_pool, Like
 
 # 定数定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 SESSION_DAYS = 30
+
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', uuid.uuid4().hex)
@@ -96,9 +97,19 @@ def signup_process():
 
 
 # 投稿ページ
-@app.get("/posts")
+# 投稿一覧ページ
+@app.route("/posts", method=['GET'])
 def posts_view():
-    return render_template("post/posts.html")
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('signin_view'))
+    else:
+        posts = Post.get_all() 
+        for post in posts:
+            post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
+            post['user_name'] = User.get_name_by_id(post['user_id'])
+            post['like_count'] = Like.get_count_by_post_id(post['id'])
+        return render_template('post/posts.html', posts=posts, user_id=user_id)
 
 @app.post("/posts")
 def posts_process():
@@ -120,6 +131,7 @@ def posts_detail_view(post_id):
 def comment_process(post_id):
     comment = request.form.get("comment", "").strip()
     return redirect(url_for("posts_detail_view", post_id=post_id))
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
