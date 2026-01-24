@@ -13,9 +13,7 @@ cp .env.example .env
 docker compose up
 docker compose ps
 
-access: http://localhost:55000/
-        http://localhost:55000/signin
-        http://localhost:55000/signup
+access: http:://localhost:55000/login
 
 docker compose stop
 docker compose down
