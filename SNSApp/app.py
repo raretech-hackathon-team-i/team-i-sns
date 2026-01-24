@@ -20,10 +20,12 @@ csrf = CSRFProtect(app)
 
 get_db_pool()
 
+posts: list[str] = []
+
 # ルートログインページ
 @app.route("/")
-def login_view():
-    return render_template("auth/login.html")
+def top_view():
+    return render_template("auth/top.html")
 
 # サインインページ
 @app.get("/signin")
@@ -32,7 +34,7 @@ def signin_view():
 
 # サインイン処理
 @app.route('/signin', methods=['POST'])
-def login_process():
+def signin_process():
     email = request.form.get('email', '').strip()
     password = request.form.get('password', '')
     
@@ -120,6 +122,14 @@ def posts_detail_view(post_id):
 def comment_process(post_id):
     comment = request.form.get("comment", "").strip()
     return redirect(url_for("posts_detail_view", post_id=post_id))
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template("error/404.html"), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return render_template("error/500.html"), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

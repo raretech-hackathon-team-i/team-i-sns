@@ -3,7 +3,7 @@
 {% block extra_css %}<link rel="stylesheet" href="{{url_for('static', filename='css/auth.css')}}">{% endblock %}
 {% block content %}
 <h1>ログイン</h1>
-        <form class="auth-form" method="post">
+<form class="auth-form" method="post" action="{{url_for('signin_process') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <!-- ===== フォームフィールド ===== -->
           <div>

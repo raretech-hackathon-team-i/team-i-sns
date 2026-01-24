@@ -4,7 +4,7 @@ extra_css %}<link
   href="{{ url_for('static', filename='css/auth.css')}}"
 />{% endblock %} {% block content %}
 <h1>新規登録</h1>
-<form class="auth-form" method="post">
+<form class="auth-form" method="post" action="{{ url_for('signup_process') }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
   <div>
     <label>ユーザー名</label>
@@ -32,7 +32,7 @@ extra_css %}<link
 
   <div class="auth-button-container">
     <button class="auth-button" type="submit">新規登録</button>
-    <a class="switch-auth-mode" href="{{ url_for('login_view') }}">
+    <a class="switch-auth-mode" href="{{ url_for('top_view') }}">
       ログインはこちら
     </a>
     {% endblock %}
