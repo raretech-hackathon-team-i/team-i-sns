@@ -1,104 +1,52 @@
-from flask import Flask, request, redirect, render_template, session, flash, abort, url_for
-from flask_wtf.csrf import CSRFProtect
-from datetime import timedelta
-import hashlib
-import uuid
-import re
+from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 
-from models import User , Post, Comment, get_db_pool
-
-# 定数定義
-EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-SESSION_DAYS = 30
-
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', uuid.uuid4().hex)
-app.permanent_session_lifetime = timedelta(days=SESSION_DAYS)
+app.secret_key = os.getenv("SECRET_KEY", "dev")
 
-csrf = CSRFProtect(app)
+posts = []
 
-get_db_pool()
-
-# ルートログインページ
+# top.html
 @app.route("/")
-def login_view():
-    return render_template("auth/login.html")
+def top_view():
+    return render_template("auth/top.html")
 
-# サインインページ
+# signin.html
 @app.get("/signin")
 def signin_view():
     return render_template("auth/signin.html")
 
-# サインイン処理
-@app.route('/signin', methods=['POST'])
-def login_process():
-    email = request.form.get('email', '').strip()
-    password = request.form.get('password', '')
-    
-    if email == '' or password == '':
-        flash('メールアドレスかパスワードが空です','error')
-    else:
-        user = User.find_by_email(email)
-        if user is None:
-            flash('メールアドレスかパスワードが違います','error')
-        else:
-            hashPassword = hashlib.sha256(password.encode('utf-8')).hexdigest()
-            if hashPassword != user["password"]:
-                flash('メールアドレスかパスワードが違います','error')
-            else:
-                session['user_id'] = user["id"]
-                return redirect(url_for('posts_view'))
-    return redirect(url_for('signin_view'))
- 
+@app.post("/signin")
+def signin_process():
+    email = request.form.get("email", "").strip()
+    password = request.form.get("password", "").strip()
 
-# サインアップページ
-@app.route('/signup', methods=['GET'])
+    if not email or not password:
+        flash("メールアドレスとパスワードを入力してください")
+        return redirect(url_for("signin_view"))
+
+    return redirect(url_for("posts_view"))
+
+# signup.html
+@app.get("/signup")
 def signup_view():
     return render_template("auth/signup.html")
 
-# サインアップ処理
-@app.route('/signup',methods=['POST'])
+@app.post("/signup")
 def signup_process():
-    name = request.form.get('name', '').strip()
-    email = request.form.get('email', '').strip()
-    password = request.form.get('password', '')
-    password_confirmation = request.form.get('password_confirmation', '')
-
-    # 空チェック
-    if not name or not email or not password or not password_confirmation:
-        flash("空の入力項目があります", 'error')
-        return redirect(url_for('signup_view'))
+    email = request.form.get("email", "").strip()
+    password = request.form.get("password", "").strip()
     
-    #パスワード一致チェック
-    if password != password_confirmation:
-        flash('確認用パスワードが一致していません','error')
-        return redirect(url_for('signup_view'))
+    if not email or not password:
+        flash("未入力の項目があります")
+        return redirect(url_for("signup_view"))
 
-    #メール形式チェック
-    if re.match(EMAIL_PATTERN, email) is None:
-        flash('メールの形式が正しくありません','error')
-        return redirect(url_for('signup_view'))
+    return redirect(url_for("posts_view"))
 
-    #既存ユーザーチェック
-    registered_user = User.find_by_email(email)
-    if registered_user is not None:
-        flash('既に登録されているメールアドレスです','error')
-        return redirect(url_for('signup_view'))
-
-    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
-
-    user_id = User.create(name, email, hashed_password)
-
-    session['user_id'] = user_id
-
-    return redirect(url_for('posts_view'))
-
-
-# 投稿ページ
+# posts.html
 @app.get("/posts")
 def posts_view():
-    return render_template("post/posts.html")
+    return render_template("post/posts.html", posts=posts)
 
 @app.post("/posts")
 def posts_process():
@@ -107,7 +55,7 @@ def posts_process():
         posts.append(content)
     return redirect(url_for("posts_view"))
 
-# コメントページ
+# posts.detail_view
 @app.get("/posts/<int:post_id>")
 def posts_detail_view(post_id):
     if post_id < 0 or post_id >= len(posts):
