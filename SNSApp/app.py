@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_wtf.csrf import CSRFProtect
 import os
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev")
+csrf = CSRFProtect(app)
 
 posts = []
 
