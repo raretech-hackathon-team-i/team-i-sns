@@ -18,6 +18,7 @@
   <div class="comment-form">
     {% if post %}
       <form method="POST" action="{{ url_for('comment_process', post_id=post.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <textarea name="comment" rows="3" placeholder="コメントを書く"></textarea>
         <button type="submit">コメント</button>
       </form>

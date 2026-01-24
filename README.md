@@ -13,7 +13,7 @@ cp .env.example .env
 docker compose up
 docker compose ps
 
-access: http:://localhost:55000/login
+access: http://localhost:55000/
 
 docker compose stop
 docker compose down
@@ -23,7 +23,7 @@ main:提出用（直接push禁止）
 develop:統合先（常に最新）
 feature/<topic> :作業用→PR→developへ
 
-例: feature-login-ui
+例: feature-auth-ui
 
 #作業手順
 ```bash
