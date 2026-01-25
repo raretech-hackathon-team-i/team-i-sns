@@ -68,7 +68,7 @@ class Post:
     def get_all(cls):
         conn = db_pool.get_conn()
         try:
-            with conn.corsur() as cur:
+            with conn.cursor() as cur:
                 sql = "SELECT * FROM posts WHERE deleted_at IS NULL ORDER BY created_at DESC;"
                 cur.execute(sql)
                 posts = cur.fetchall()
@@ -84,7 +84,7 @@ class Post:
     def create(cls, user_id, body):
         conn = db_pool.get_conn()
         try:
-            with conn.corsur() as cur:
+            with conn.cursor() as cur:
                 sql = "INSERT INTO posts (user_id, body) VALUES (%s, %s);"
                 cur.execute(sql, (user_id, body))
                 conn.commit()
@@ -99,7 +99,7 @@ class Post:
     def delete(cls, post_id):
         conn = db_pool.get_conn()
         try:
-            with conn.corsur() as cur:
+            with conn.cursor() as cur:
                 sql = "UPDATE posts SET deleted_at = NOW() WHERE id = %s;"
                 cur.execute(sql, (post_id))
                 conn.commit()
@@ -113,7 +113,7 @@ class Post:
     def find_by_id(cls, post_id):
         conn = db_pool.get_conn()
         try:
-            with conn.corsur() as cur:
+            with conn.cursor() as cur:
                 sql = "SELECT * FROM posts WHERE id=%s AND deleted_at IS NULL;"
                 cur.execute(sql, (post_id))
                 posts = cur.fetchone()
@@ -144,5 +144,5 @@ class Like:
         print(f'エラーが発生しています:{e}')
         abort(500)
     finally:
-"""
         db_pool.release(conn)
+"""

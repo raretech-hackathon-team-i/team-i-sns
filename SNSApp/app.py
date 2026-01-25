@@ -6,7 +6,7 @@ import uuid
 import re
 import os
 
-from models import User , Post, Comment, get_db_pool, Like
+from models import User , Post, Comment, get_db_pool
 
 # 定数定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -99,7 +99,7 @@ def signup_process():
 
 # 投稿ページ
 # 投稿一覧ページ
-@app.route("/posts", method=['GET'])
+@app.route("/posts", methods=['GET'])
 def posts_view():
     user_id = session.get('user_id')
     if user_id is None:
@@ -109,7 +109,7 @@ def posts_view():
         for post in posts:
             post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
             post['user_name'] = User.get_name_by_id(post['user_id'])
-            post['like_count'] = Like.get_count_by_post_id(post['id'])
+            # post['like_count'] = Like.get_count_by_post_id(post['id'])
         return render_template('post/posts.html', posts=posts, user_id=user_id)
 
 @app.post("/posts")
