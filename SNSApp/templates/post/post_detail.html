@@ -7,36 +7,39 @@
 {% block content %}
 <div class="container">
 
-  <div class="post-card">
-    {% if post %}
-      <p class="post-body">{{ post.body }}</p>
-    {% else %}
-      <p class="post-body">(投稿データは未接続です)</p>
-    {% endif %}
-  </div>
+	<div class="post-card">
+		{% if post %}
+			<p class="post-body">{{ post.body }}</p>
+    		{% else %}
+      			<p class="post-body">(投稿データは未接続です)</p>
+    		{% endif %}
+	</div>
 
-  <div class="comment-form">
-    {% if post %}
-      <form method="POST" action="{{ url_for('comment_process', post_id=post.id) }}">
-        <textarea name="comment" rows="3" placeholder="コメントを書く"></textarea>
-        <button type="submit">コメント</button>
-      </form>
-    {% else %}
-      <p>※投稿が未接続のためコメントできません</p>
-    {% endif %}
-  </div>
+  	<div class="comment-form">
+    		{% if post %}
+      			<form method="POST" action="{{ url_for('comment_process', post_id=post.id) }}">
+				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        			<textarea name="comment" rows="3" placeholder="コメントを書く"></textarea>
+        			<button type="submit">コメント</button>
+      			</form>
+    		{% else %}
+      			<p>※投稿が未接続のためコメントできません</p>
+    		{% endif %}
+  	</div>
 
-  <div class="comment-list">
-    {% if post and post.comments %}
-      {% for comment in post.comments %}
-        <div class="comment">{{ comment.comment }}</div>
-      {% endfor %}
-    {% else %}
-      <p>コメントがありません</p>
-    {% endif %}
-  </div>
+  	<div class="comment-list">
+    		{% if post and post.comments %}
+      			{% for comment in post.comments %}
+        			<div class="comment">{{ comment.comment }}</div>
+      			{% endfor %}
+    		{% else %}
+      			<p>コメントがありません</p>
+    		{% endif %}
+  	</div>
 
-  <p><a class="btn" href="{{ url_for('posts_view') }}">←投稿一覧へ戻る</a></p>
+  	<p>
+		<a class="btn" href="{{ url_for('posts_view') }}">←投稿一覧へ戻る</a>
+	</p>
 
 </div>
 {% endblock %}
