@@ -99,7 +99,7 @@ def signup_process():
 
 # 投稿ページ
 # 投稿一覧ページ
-@app.route("/posts", methods=['GET'])
+@app.route('/posts', methods=['GET'])
 def posts_view():
     user_id = session.get('user_id')
     if user_id is None:
@@ -112,12 +112,38 @@ def posts_view():
             # post['like_count'] = Like.get_count_by_post_id(post['id'])
         return render_template('post/posts.html', posts=posts, user_id=user_id)
 
-@app.post("/posts")
+# 投稿処理
+@app.route('/posts', methods=['POST'])
 def posts_process():
-    content = request.form.get("content","").strip()
-    if content:
-        posts.append(content)
-    return redirect(url_for("posts_view"))
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('signin_view'))
+    content = request.form.get("body","").strip()
+    if content == '':
+        flash('投稿内容が空です', 'error')
+        return redirect(url_for("posts_view"))
+    Post.create(user_id, body)
+    flash('投稿が完了しました', 'success')
+    return redirect(url_for('posts_view'))
+
+# 削除処理
+@app.route('/posts/<int:post_id>/delete', methods=['GET'])
+def delete_post(post_id):
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('signin_view'))
+
+    post = Post.find_by_id(post_id)
+    if post is None:
+        abort(404)
+
+    if post['user_id'] != user_id:
+        flash('この投稿を削除することはできません', 'error')
+        return redirect(url_for('post_view'))
+
+    Post.delete(post_id)
+    flash('投稿が削除されました', 'success')
+    return redirect(url_for('post_view'))
 
 # コメントページ
 @app.get("/posts/<int:post_id>")
