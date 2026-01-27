@@ -81,12 +81,12 @@ class Post:
 
     # 投稿作成処理
     @classmethod
-    def create(cls, user_id, body):
+    def create(cls, user_id, content):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
-                sql = "INSERT INTO posts (user_id, body) VALUES (%s, %s);"
-                cur.execute(sql, (user_id, body))
+                sql = "INSERT INTO posts (user_id, content) VALUES (%s, %s);"
+                cur.execute(sql, (user_id, content))
                 conn.commit()
         except pymysql.Error as e:
             print(f'エラーが発生しています:{e}')
@@ -116,8 +116,8 @@ class Post:
             with conn.cursor() as cur:
                 sql = "SELECT * FROM posts WHERE id=%s AND deleted_at IS NULL;"
                 cur.execute(sql, (post_id))
-                posts = cur.fetchone()
-            return posts
+                post = cur.fetchone()
+            return post
         except pymysql.Error as e:
             print(f'エラーが発生しています:{e}')
             abort(500)

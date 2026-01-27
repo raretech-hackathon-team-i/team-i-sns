@@ -118,11 +118,12 @@ def posts_process():
     user_id = session.get('user_id')
     if user_id is None:
         return redirect(url_for('signin_view'))
-    content = request.form.get("body","").strip()
+    content = request.form.get("content","").strip()
     if content == '':
         flash('投稿内容が空です', 'error')
         return redirect(url_for("posts_view"))
-    Post.create(user_id, body)
+
+    Post.create(user_id, content)
     flash('投稿が完了しました', 'success')
     return redirect(url_for('posts_view'))
 
