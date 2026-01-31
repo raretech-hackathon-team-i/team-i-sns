@@ -1,8 +1,9 @@
-{% extends "base.html" %} {% block title %}ログイン　|　入門SNS{% endblock%} {%
-block extra_css %}<link
-  rel="stylesheet"
-  href="{{url_for('static', filename='css/auth.css')}}"
-/>{% endblock %} {% block content %}
+{% extends "base.html" %} 
+{% block title %}ログイン　|　入門SNS{% endblock%} 
+{%block extra_css %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/auth.css')}}"/>
+{% endblock %}
+{% block content %}
 <h1>入門SNS</h1>
 <p><a class="btn" href="{{ url_for('signin_view') }}">ログインはこちら</a></p>
 
