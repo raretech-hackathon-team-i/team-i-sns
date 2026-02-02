@@ -15,10 +15,17 @@
 
 <div class="post-list">
 	{% for post in posts %}
-		<div class="post-card">
-			<div class="post-body">{{ post }}</p>
-			<a href="{{ url_for('posts_detail_view', post_id=loop.index0) }}">詳細</a>
+		<article class="post-card">
+			<div class="post-meta">
+				<span class="post-user">{{ post.user_name }}</span>
+				<time class="post-time">{{ post.created_at }}</time>
 		</div>
+
+		<p class="post-body">{{ post.content }}</p>
+
+		{# 詳細（post_detaile.html）は未実装のため一旦無効化 #}
+		{# <a class="post-link" href="{{ url_for('posts_detail_view', post_id=post.id) }}">詳細</a> #}
+		</article>
 	{% else %}
 		<p>投稿がありません</p>
 	{% endfor %}

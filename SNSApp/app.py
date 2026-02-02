@@ -20,7 +20,6 @@ csrf = CSRFProtect(app)
 
 get_db_pool()
 
-posts: list[str] = []
 
 # ルートログインページ
 @app.route("/")
@@ -146,19 +145,28 @@ def delete_post(post_id):
     flash('投稿が削除されました', 'success')
     return redirect(url_for('post_view'))
 
-# コメントページ
-@app.get("/posts/<int:post_id>")
-def posts_detail_view(post_id):
-    if post_id < 0 or post_id >= len(posts):
-        return "Not Found", 404
+    Post.create(user_id, content)
+    flash('投稿が完了しました', 'success')
+    return redirect(url_for('posts_view'))
 
-    post = {"id": post_id, "body": posts[post_id], "comments": []}
-    return render_template("post/post_detail.html", post=post)
+# 削除処理
+@app.route('/posts/<int:post_id>/delete', methods=['GET'])
+def delete_post(post_id):
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('signin_view'))
 
-@app.post("/posts/<int:post_id>/comment")
-def comment_process(post_id):
-    comment = request.form.get("comment", "").strip()
-    return redirect(url_for("posts_detail_view", post_id=post_id))
+    post = Post.find_by_id(post_id)
+    if post is None:
+        abort(404)
+
+    if post['user_id'] != user_id:
+        flash('この投稿を削除することはできません', 'error')
+        return redirect(url_for('posts_view'))
+
+    Post.delete(post_id)
+    flash('投稿が削除されました', 'success')
+    return redirect(url_for('posts_view'))
 
 @app.errorhandler(404)
 def not_found(error):
