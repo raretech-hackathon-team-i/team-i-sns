@@ -20,7 +20,6 @@ csrf = CSRFProtect(app)
 
 get_db_pool()
 
-posts: list[str] = []
 
 # ルートログインページ
 @app.route("/")
@@ -140,25 +139,11 @@ def delete_post(post_id):
 
     if post['user_id'] != user_id:
         flash('この投稿を削除することはできません', 'error')
-        return redirect(url_for('post_view'))
+        return redirect(url_for('posts_view'))
 
     Post.delete(post_id)
     flash('投稿が削除されました', 'success')
-    return redirect(url_for('post_view'))
-
-# コメントページ
-@app.get("/posts/<int:post_id>")
-def posts_detail_view(post_id):
-    if post_id < 0 or post_id >= len(posts):
-        return "Not Found", 404
-
-    post = {"id": post_id, "body": posts[post_id], "comments": []}
-    return render_template("post/post_detail.html", post=post)
-
-@app.post("/posts/<int:post_id>/comment")
-def comment_process(post_id):
-    comment = request.form.get("comment", "").strip()
-    return redirect(url_for("posts_detail_view", post_id=post_id))
+    return redirect(url_for('posts_view'))
 
 @app.errorhandler(404)
 def not_found(error):
