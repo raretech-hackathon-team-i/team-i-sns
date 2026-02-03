@@ -20,7 +20,6 @@ csrf = CSRFProtect(app)
 
 get_db_pool()
 
-posts: list[str] = []
 
 # ルートログインページ
 @app.route("/")
@@ -140,7 +139,7 @@ def delete_post(post_id):
 
     if post['user_id'] != user_id:
         flash('この投稿を削除することはできません', 'error')
-        return redirect(url_for('post_view'))
+        return redirect(url_for('posts_view'))
 
     Post.delete(post_id)
     flash('投稿が削除されました', 'success')
