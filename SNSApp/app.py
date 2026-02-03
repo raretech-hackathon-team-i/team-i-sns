@@ -148,13 +148,14 @@ def delete_post(post_id):
 
 # 投稿詳細ページの表示
 @app.get("/posts/<int:post_id>")
-def post_detail_view(post_id):
+def posts_detail_view(post_id):
     user_id = session.get('user_id')
     if user_id is None:
         return redirect(url_for('login_view'))
     post = Post.find_by_id(post_id)
     if post is None:
         abort(404)
+        
     post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
     post['user_name'] = User.get_name_by_id(post['user_id'])
 
@@ -174,10 +175,10 @@ def create_comment(post_id):
     content = request.form.get('content', '').strip()
     if content == '':
         flash('コメント内容が空です','error')
-        return redirect(url_for('post_detail_view', post_id=post_id))
+        return redirect(url_for('posts_detail_view', post_id=post_id))
     Comment.create(user_id, post_id, content)
     flash('コメントの投稿が完了しました','success')
-    return redirect(url_for('post_detail_view', post_id=post_id))
+    return redirect(url_for('posts_detail_view', post_id=post_id))
 
 @app.errorhandler(400)
 def bad_request(error):
