@@ -166,7 +166,45 @@ def delete_post(post_id):
 
     Post.delete(post_id)
     flash('投稿が削除されました', 'success')
-    return redirect(url_for('posts_view'))
+    return redirect(url_for('post_view'))
+
+# 投稿詳細ページの表示
+@app.get("/posts/<int:post_id>")
+def posts_detail_view(post_id):
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('login_view'))
+    post = Post.find_by_id(post_id)
+    if post is None:
+        abort(404)
+        
+    post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
+    post['user_name'] = User.get_name_by_id(post['user_id'])
+
+    comments = Comment.get_by_post_id(post_id)
+    for comment in comments:
+        comment['created_at'] = comment['created_at'].strftime('%Y-%m-%d %H:%M')
+        comment['user_name'] = User.get_name_by_id(comment['user_id'])
+
+    return render_template('post/post_detail.html', post=post, comments = comments, user_id=user_id)
+
+# コメント処理
+@app.route('/posts/<int:post_id>/comments', methods=['POST'])
+def create_comment(post_id):
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('login_view'))
+    content = request.form.get('content', '').strip()
+    if content == '':
+        flash('コメント内容が空です','error')
+        return redirect(url_for('posts_detail_view', post_id=post_id))
+    Comment.create(user_id, post_id, content)
+    flash('コメントの投稿が完了しました','success')
+    return redirect(url_for('posts_detail_view', post_id=post_id))
+
+@app.errorhandler(400)
+def bad_request(error):
+    return render_template('error/400.html'), 400
 
 @app.errorhandler(404)
 def not_found(error):

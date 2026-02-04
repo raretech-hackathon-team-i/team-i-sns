@@ -9,28 +9,28 @@
 
   <div class="post-card">
     {% if post %}
-      <p class="post-body">{{ post.body }}</p>
+      <p class="post-body">{{ post['content'] }}</p>
     {% else %}
       <p class="post-body">(投稿データは未接続です)</p>
     {% endif %}
   </div>
 
   <div class="comment-form">
-    {% if post %}
-      <form method="POST" action="{{ url_for('comment_process', post_id=post.id) }}">
+  {% if post %}
+    <form method="POST" action="{{ url_for('create_comment', post_id=post['id']) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <textarea name="comment" rows="3" placeholder="コメントを書く"></textarea>
-        <button type="submit">コメント</button>
-      </form>
-    {% else %}
-      <p>※投稿が未接続のためコメントできません</p>
-    {% endif %}
-  </div>
+      <textarea name="content" rows="3" placeholder="コメントを書く"></textarea>
+      <button type="submit">コメント</button>
+    </form>
+  {% else %}
+    <p>※投稿が未接続のためコメントできません</p>
+  {% endif %}
+</div>
 
   <div class="comment-list">
-    {% if post and post.comments %}
-      {% for comment in post.comments %}
-        <div class="comment">{{ comment.comment }}</div>
+    {% if comments %}
+      {% for comment in comments %}
+        <div class="comment">{{ comment['content'] }}</div>
       {% endfor %}
     {% else %}
       <p>コメントがありません</p>
