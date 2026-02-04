@@ -143,14 +143,14 @@ def delete_post(post_id):
 
     Post.delete(post_id)
     flash('投稿が削除されました', 'success')
-    return redirect(url_for('post_view'))
+    return redirect(url_for('posts_view'))
 
 # 投稿詳細ページの表示
 @app.get("/posts/<int:post_id>")
 def posts_detail_view(post_id):
     user_id = session.get('user_id')
     if user_id is None:
-        return redirect(url_for('login_view'))
+        return redirect(url_for('signin_view'))
     post = Post.find_by_id(post_id)
     if post is None:
         abort(404)
@@ -170,7 +170,7 @@ def posts_detail_view(post_id):
 def create_comment(post_id):
     user_id = session.get('user_id')
     if user_id is None:
-        return redirect(url_for('login_view'))
+        return redirect(url_for('posts_view'))
     content = request.form.get('content', '').strip()
     if content == '':
         flash('コメント内容が空です','error')
