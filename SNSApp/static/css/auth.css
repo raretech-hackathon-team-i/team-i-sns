@@ -1,8 +1,4 @@
-.flash {}
 
-<<<<<<< HEAD
-.flash li {}
-=======
 body {
     text-align: center;
     padding: 50px;
@@ -50,7 +46,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* ボタンアクティブ時 */
 .btn:active {
     background-color: #2c5ca8;
     transform: translateY(0);
@@ -67,7 +62,6 @@ body {
     border: 1px solid #ffeeba;
 }
 
-/* レスポンシブ対応 */
 @media (max-width: 480px) {
     h1 {
         font-size: 2rem;
@@ -78,4 +72,3 @@ body {
     }
 }
 
->>>>>>> c6b426b (css,html変更)

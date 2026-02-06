@@ -22,12 +22,17 @@ a:hover {
     color: #dae6f3;
 }
 
-.container {
+header.container {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    gap: 20px; 
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
 }
+
 
 header.site-header {
     background-color: #333;
@@ -35,11 +40,6 @@ header.site-header {
     padding: 20px 0;
 }
 
-header .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
 
 header .site-title a {
     color: whitesmoke;
