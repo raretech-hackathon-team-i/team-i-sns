@@ -113,7 +113,6 @@ def profile_view(user_id):
 
         return render_template("profile/profile.html",user=user,posts=posts)
 
-
 # プロフィール編集ページ
 @app.get("/profile/edit")
 def profile_edit_view():
@@ -122,9 +121,10 @@ def profile_edit_view():
         return redirect(url_for('signin_view'))
     else:
         user = User.get_user_by_id(user_id)
-        return render_template("profile/edit.html",user=user)
-    
-#プロフィールの更新
+        # テンプレは profile/profile_edit.html が正
+        return render_template("profile/profile_edit.html", user=user)
+
+# プロフィールの更新（DBにintroduce列が無いので name のみ）
 @app.post("/profile/edit")
 def profile_update():
     user_id = session.get("user_id")
@@ -132,11 +132,11 @@ def profile_update():
         return redirect(url_for("signin_view"))
 
     name = request.form.get("user_name", "").strip()
-    introduce = request.form.get("user_introduce", "").strip()
 
-    User.update_profile(user_id, name, introduce)
+    User.update_profile(user_id, name)
     flash("更新しました", "success")
     return redirect(url_for("profile_view", user_id=user_id))
+
 
 # 投稿ページ
 # 投稿一覧ページ
