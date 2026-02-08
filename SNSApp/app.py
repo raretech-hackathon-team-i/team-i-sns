@@ -6,7 +6,7 @@ import uuid
 import re
 import os
 
-from models import User , Post, Comment, get_db_pool
+from models import User, Post, Comment, get_db_pool
 
 # 定数定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -17,52 +17,64 @@ app.secret_key = os.getenv('SECRET_KEY', uuid.uuid4().hex)
 app.permanent_session_lifetime = timedelta(days=SESSION_DAYS)
 
 csrf = CSRFProtect(app)
-
 get_db_pool()
+
 
 @app.context_processor
 def inject_csrf_token():
     return dict(csrf_token=generate_csrf)
+
+
+# ログイン済み前提の確認
+def require_login():
+    user_id = session.get('user_id')
+    if user_id is None:
+        return None
+    return user_id
+
 
 # ルートログインページ
 @app.route("/")
 def top_view():
     return render_template("auth/top.html")
 
+
 # サインインページ
 @app.get("/signin")
 def signin_view():
     return render_template("auth/signin.html")
+
 
 # サインイン処理
 @app.route('/signin', methods=['POST'])
 def signin_process():
     email = request.form.get('email', '').strip()
     password = request.form.get('password', '')
-    
+
     if email == '' or password == '':
-        flash('メールアドレスかパスワードが空です','error')
+        flash('メールアドレスかパスワードが空です', 'error')
     else:
         user = User.find_by_email(email)
         if user is None:
-            flash('メールアドレスかパスワードが違います','error')
+            flash('メールアドレスかパスワードが違います', 'error')
         else:
             hashPassword = hashlib.sha256(password.encode('utf-8')).hexdigest()
             if hashPassword != user["password"]:
-                flash('メールアドレスかパスワードが違います','error')
+                flash('メールアドレスかパスワードが違います', 'error')
             else:
                 session['user_id'] = user["id"]
                 return redirect(url_for('posts_view'))
     return redirect(url_for('signin_view'))
- 
+
 
 # サインアップページ
 @app.route('/signup', methods=['GET'])
 def signup_view():
     return render_template("auth/signup.html")
 
+
 # サインアップ処理
-@app.route('/signup',methods=['POST'])
+@app.route('/signup', methods=['POST'])
 def signup_process():
     name = request.form.get('name', '').strip()
     email = request.form.get('email', '').strip()
@@ -73,93 +85,53 @@ def signup_process():
     if not name or not email or not password or not password_confirmation:
         flash("空の入力項目があります", 'error')
         return redirect(url_for('signup_view'))
-    
-    #パスワード一致チェック
+
+    # パスワード一致チェック
     if password != password_confirmation:
-        flash('確認用パスワードが一致していません','error')
+        flash('確認用パスワードが一致していません', 'error')
         return redirect(url_for('signup_view'))
 
-    #メール形式チェック
+    # メール形式チェック
     if re.match(EMAIL_PATTERN, email) is None:
-        flash('メールの形式が正しくありません','error')
+        flash('メールの形式が正しくありません', 'error')
         return redirect(url_for('signup_view'))
 
-    #既存ユーザーチェック
+    # 既存ユーザーチェック
     registered_user = User.find_by_email(email)
     if registered_user is not None:
-        flash('既に登録されているメールアドレスです','error')
+        flash('既に登録されているメールアドレスです', 'error')
         return redirect(url_for('signup_view'))
 
     hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
-
     user_id = User.create(name, email, hashed_password)
-
     session['user_id'] = user_id
-
     return redirect(url_for('posts_view'))
 
-# プロフィールページ
-@app.get("/profile/<int:user_id>")
-def profile_view(user_id):
-    my_user_id = session.get('user_id')
-    if my_user_id is None:
-        return redirect(url_for('signin_view'))
-    else:
-        user = User.get_user_by_id(user_id)
-        posts = Post.get_by_user_id(user_id) 
-        for post in posts:
-            post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-            post['user_name'] = User.get_user_by_id(post['user_id'])
 
-        return render_template("profile/profile.html",user=user,posts=posts)
-
-# プロフィール編集ページ
-@app.get("/profile/edit")
-def profile_edit_view():
-    user_id = session.get('user_id')
-    if user_id is None:
-        return redirect(url_for('signin_view'))
-    else:
-        user = User.get_user_by_id(user_id)
-        # テンプレは profile/profile_edit.html が正
-        return render_template("profile/profile_edit.html", user=user)
-
-# プロフィールの更新（DBにintroduce列が無いので name のみ）
-@app.post("/profile/edit")
-def profile_update():
-    user_id = session.get("user_id")
-    if user_id is None:
-        return redirect(url_for("signin_view"))
-
-    name = request.form.get("user_name", "").strip()
-
-    User.update_profile(user_id, name)
-    flash("更新しました", "success")
-    return redirect(url_for("profile_view", user_id=user_id))
-
-
-# 投稿ページ
 # 投稿一覧ページ
 @app.route('/posts', methods=['GET'])
 def posts_view():
-    user_id = session.get('user_id')
+    user_id = require_login()
     if user_id is None:
         return redirect(url_for('signin_view'))
-    else:
-        posts = Post.get_all() 
-        for post in posts:
-            post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-            post['user_name'] = User.get_user_by_id(post['user_id'])
-            # post['like_count'] = Like.get_count_by_post_id(post['id'])
-        return render_template('post/posts.html', posts=posts, user_id=user_id)
+
+    posts = Post.get_all()
+    for post in posts:
+        post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
+        u = User.get_user_by_id(post['user_id'])
+        post['user_name'] = u["name"] if u else ""
+        # post['like_count'] = Like.get_count_by_post_id(post['id'])
+    return render_template('post/posts.html', posts=posts, user_id=user_id)
+
 
 # 投稿処理
 @app.route('/posts', methods=['POST'])
 def posts_process():
-    user_id = session.get('user_id')
+    user_id = require_login()
     if user_id is None:
         return redirect(url_for('signin_view'))
-    content = request.form.get("content","").strip()
+
+    content = request.form.get("content", "").strip()
     if content == '':
         flash('投稿内容が空です', 'error')
         return redirect(url_for("posts_view"))
@@ -168,10 +140,11 @@ def posts_process():
     flash('投稿が完了しました', 'success')
     return redirect(url_for('posts_view'))
 
+
 # 削除処理
 @app.route('/posts/<int:post_id>/delete', methods=['GET'])
 def delete_post(post_id):
-    user_id = session.get('user_id')
+    user_id = require_login()
     if user_id is None:
         return redirect(url_for('signin_view'))
 
@@ -187,73 +160,73 @@ def delete_post(post_id):
     flash('投稿が削除されました', 'success')
     return redirect(url_for('posts_view'))
 
+
 # 投稿詳細ページの表示
 @app.get("/posts/<int:post_id>")
 def posts_detail_view(post_id):
-    user_id = session.get('user_id')
+    user_id = require_login()
     if user_id is None:
         return redirect(url_for('signin_view'))
+
     post = Post.find_by_id(post_id)
     if post is None:
         abort(404)
-        
+
     post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-    post['user_name'] = User.get_user_by_id(post['user_id'])
+    u = User.get_user_by_id(post['user_id'])
+    post['user_name'] = u["name"] if u else ""
 
     comments = Comment.get_by_post_id(post_id)
     for comment in comments:
         comment['created_at'] = comment['created_at'].strftime('%Y-%m-%d %H:%M')
-        comment['user_name'] = User.get_user_by_id(comment['user_id'])
+        cu = User.get_user_by_id(comment['user_id'])
+        comment['user_name'] = cu["name"] if cu else ""
 
-    return render_template('post/post_detail.html', post=post, comments = comments, user_id=user_id)
+    return render_template('post/post_detail.html', post=post, comments=comments, user_id=user_id)
+
 
 # コメント処理
 @app.route('/posts/<int:post_id>/comments', methods=['POST'])
 def create_comment(post_id):
-    user_id = session.get('user_id')
+    user_id = require_login()
     if user_id is None:
         return redirect(url_for('posts_view'))
+
     content = request.form.get('content', '').strip()
     if content == '':
-        flash('コメント内容が空です','error')
+        flash('コメント内容が空です', 'error')
         return redirect(url_for('posts_detail_view', post_id=post_id))
+
     Comment.create(user_id, post_id, content)
-    flash('コメントの投稿が完了しました','success')
+    flash('コメントの投稿が完了しました', 'success')
     return redirect(url_for('posts_detail_view', post_id=post_id))
 
-# 追加のルート:profile / follow / like
 
-# ログイン済み前提の確認
-def require_login():
-    user_id = session.get('user_id')
-    if user_id is None:
-        return None
-    return user_id
-
-# いいね機能（非追跡ならuser_idを持たない）
+# いいね機能（未実装）
 @app.post('/posts/<int:post_id>/likes')
 def toggle_like(post_id):
     user_id = require_login()
     if user_id is None:
         return redirect(url_for('signin_view'))
 
-    # いいね処理は未実装
     flash('いいねしました', 'success')
     return redirect(url_for('posts_detail_view', post_id=post_id))
 
-# プロフィールページの表示
+
+# プロフィールページの表示（これを唯一の定義にする）
 @app.route('/profile/<int:user_id>')
 def profile_view(user_id):
     login_user_id = require_login()
     if login_user_id is None:
         return redirect(url_for('signin_view'))
-   
+
     user = User.get_user_by_id(user_id)
     posts = Post.get_by_user_id(user_id)
 
     for post in posts:
         post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-        post['user_name'] = User.get_name_by_id(post['user_id'])
+        u = User.get_user_by_id(post['user_id'])
+        post['user_name'] = u["name"] if u else ""
 
     return render_template(
         'profile/profile.html',
@@ -263,14 +236,14 @@ def profile_view(user_id):
         posts=posts,
     )
 
-# プロフィール編集ページの表示
+
+# プロフィール編集ページの表示（新URLに統一）
 @app.get('/profile/<int:user_id>/edit')
 def profile_edit_view(user_id):
     login_user_id = require_login()
     if login_user_id is None:
-        return redirect(url_for('singin_view'))
+        return redirect(url_for('signin_view'))
 
-    # 編集者が自分かチェック（必要なら）
     if login_user_id != user_id:
         abort(403)
 
@@ -283,12 +256,11 @@ def profile_edit_view(user_id):
         user=user
     )
 
-#プロフィール編集処理
+
+# プロフィール編集処理（introduceはDBに無いので name のみ更新）
 @app.post('/profile/<int:user_id>/edit')
 def profile_edit_process(user_id):
     login_user_id = require_login()
-    if login_user_id != user_id:
-        abort(403)
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
@@ -297,12 +269,14 @@ def profile_edit_process(user_id):
         return redirect(url_for('profile_view', user_id=user_id))
 
     name = request.form.get("user_name", "").strip()
-    introduce = request.form.get("user_introduce", "").strip()
+    # introduce = request.form.get("user_introduce", "").strip()
 
-    User.update_profile(user_id, name, introduce)
+    User.update_profile(user_id, name)
+    # User.update_profile(user_id, name, introduce)
 
     flash('プロフィールを更新しました', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
+
 
 # フォローリスト
 @app.get('/profile/<int:user_id>/follows')
@@ -311,8 +285,7 @@ def follows_view(user_id):
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
-    # フォロー取得未実装
-    follows = []
+    follows = []  # 取得未実装
     return render_template(
         'profile/follows.html',
         login_user_id=login_user_id,
@@ -320,27 +293,28 @@ def follows_view(user_id):
         follows=follows,
     )
 
-# フォロー処理
+
+# フォロー処理（未実装）
 @app.post('/profile/<int:user_id>/follow')
 def follow_process(user_id):
     login_user_id = require_login()
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
-    # フォロー登録未実装
     flash('フォローしました', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
 
-# フォロー解除処理
+
+# フォロー解除処理（未実装）
 @app.post('/profile/<int:user_id>/unfollow')
 def unfollow_process(user_id):
     login_user_id = require_login()
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
-    #　フォロー解除未実装
     flash('フォロー解除しました', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
+
 
 # フォロワーリスト
 @app.get('/profile/<int:user_id>/followers')
@@ -349,8 +323,7 @@ def followers_view(user_id):
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
-    # フォロワー取得未実装
-    followers = []
+    followers = []  # 取得未実装
     return render_template(
         'profile/followers.html',
         login_user_id=login_user_id,
@@ -358,19 +331,22 @@ def followers_view(user_id):
         followers=followers,
     )
 
-# ここまで追加ルート
 
 @app.errorhandler(400)
 def bad_request(error):
     return render_template('error/400.html'), 400
 
+
 @app.errorhandler(404)
 def not_found(error):
     return render_template("error/404.html"), 404
+
 
 @app.errorhandler(500)
 def internal_error(error):
     return render_template("error/500.html"), 500
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
