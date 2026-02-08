@@ -28,6 +28,24 @@ class User:
         finally:
             pool.release(conn)
     
+
+    # プロフィールの更新
+    @classmethod
+    def update_profile(cls, user_id,name,introduce):
+        pool = get_db_pool()
+        conn = pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "UPDATE users SET name = %s, introduce = %s WHERE id = %s;"
+                cur.execute(sql, (name,introduce,user_id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f"エラーが発生しています：{e}")
+            abort(500)
+        finally:
+            pool.release(conn)
+
+
     # メールから既存ユーザーを発見
     @classmethod
     def find_by_email(cls, email):
