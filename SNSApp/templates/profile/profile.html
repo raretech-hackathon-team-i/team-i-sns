@@ -1,22 +1,18 @@
-{% extends "base.html" %} {% block title %}投稿一覧{% endblock %} {% block
+{% extends "base.html" %} {% block title %}プロフィール{% endblock %} {% block
 extra_css %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/posts.css')}}" />
 {% endblock %} {% block content %}
-<div class="post-form">
-  <form method="POST" action="{{ url_for('posts_process') }}">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-    <textarea name="content" rows="4" placeholder="今何してる？"></textarea>
-    <button type="submit">投稿</button>
-  </form>
+
+<div class="user-profile">
+  <h2>{{user.name}}</h2>
+  <p>{{user.introduce}}</p>
 </div>
 
 <div class="post-list">
   {% for post in posts %}
   <article class="post-card">
     <div class="post-meta">
-      <a href="{{ url_for('profile_view', user_id=post.user_id) }}"
-        ><span class="post-user">{{ post.user_name }}</span></a
-      >
+      <span class="post-user">{{ post.user_name }}</span>
       <time class="post-time">{{ post.created_at }}</time>
     </div>
 
