@@ -45,17 +45,17 @@ class User:
         finally:
             pool.release(conn)
 
-    # IDから名前を取得
+    # IDからユーザー情報を取得
     @classmethod
-    def get_name_by_id(cls, user_id):
+    def get_user_by_id(cls, user_id):
         pool = get_db_pool()
         conn = pool.get_conn()
         try:
             with conn.cursor() as cur:
-                sql = "SELECT name FROM users WHERE id=%s;"
+                sql = "SELECT name,introduce FROM users WHERE id=%s;"
                 cur.execute(sql, (user_id,))
                 user = cur.fetchone()
-            return user["name"] if user else None
+            return {"name": user["name"], "introduce": user["introduce"]} if user else None
         except pymysql.Error as e:
             print(f"エラーが発生しています：{e}")
             abort(500)
@@ -78,6 +78,23 @@ class Post:
             abort(500)
         finally:
             db_pool.release(conn)
+
+    #ユーザーIDで投稿を取得
+    @classmethod
+    def get_by_user_id(cls, user_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "SELECT * FROM posts WHERE user_id = %s AND deleted_at IS NULL ORDER BY created_at DESC;"
+                cur.execute(sql,(user_id,))
+                posts = cur.fetchall()
+            return posts
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)    
+
 
     # 投稿作成処理
     @classmethod
