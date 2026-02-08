@@ -1,0 +1,24 @@
+{% extends "base.html" %} {% block title %}プロフィール{% endblock %} {% block
+extra_css %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/posts.css')}}" />
+{% endblock %} {% block content %}
+
+<h2>ユーザー情報の変更</h2>
+<form class="profile-form" method="post" action="{{url_for('profile_update') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <!-- ===== フォームフィールド ===== -->
+          <div>
+            <label>ユーザー名</label>
+            <input type="text" placeholder="ユーザー名" name="user_name" value="{{ user.name }}">
+          </div>
+          <div>
+            <label>自己紹介文</label>
+            <textarea placeholder="自己紹介文を入れてください" name="user_introduce">{{ user.introduce }}</textarea>
+          </div>
+
+          <div class="profile-button-container">
+            <button class="profile-button" type="submit">変更する</button>
+</form>
+  </article>
+</div>
+{% endblock %}
