@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="styleheet" href="{{ url_for('static', filename='css/profile.css') }}">
+
+<div class="profile-container">
+
+  <div class="profile-container">
+    <a class="back-link" href="{{ url_for('profile_view', user_id=user_id) }}">← プロフィールに戻る</a>
+  </div>
+  
+  <h2>フォロワーリスト</h2>
+
+  <div class="user-list">
+    {% if followers and followers|length > 0 %}
+      {% for u in followers %}
+        <div class="user-card">
+          <a href="{{ url_for('profile_view', user_id=u.id) }}">
+	    <span class="acatar-inline">👤</span>
+	    {{ u.name or ("User #" ~ u.id) }}
+	  </a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="muted">フォロワー一覧は未実装</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

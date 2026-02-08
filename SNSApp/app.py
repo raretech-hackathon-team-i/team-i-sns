@@ -1,5 +1,5 @@
 from flask import Flask, request, redirect, render_template, session, flash, abort, url_for
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from datetime import timedelta
 import hashlib
 import uuid
@@ -20,6 +20,9 @@ csrf = CSRFProtect(app)
 
 get_db_pool()
 
+@app.context_processor
+def inject_csrf_token():
+    return dict(csrf_token=generate_csrf)
 
 # ルートログインページ
 @app.route("/")
@@ -217,6 +220,120 @@ def create_comment(post_id):
     Comment.create(user_id, post_id, content)
     flash('コメントの投稿が完了しました','success')
     return redirect(url_for('posts_detail_view', post_id=post_id))
+
+# 追加のルート:profile / follow / like
+
+# ログイン済み前提の確認
+def require_login():
+    user_id = session.get('user_id')
+    if user_id is None:
+        return None
+    return user_id
+
+# いいね機能（非追跡ならuser_idを持たない）
+@app.route('/posts<int:post_id>/likes', methods=['POST'])
+def toggle_like(post_id):
+    user_id = require_login()
+    if user_id is None:
+        return redirect(url_for('signin_view'))
+
+    # いいね処理は未実装
+    flash('いいねしました', 'success')
+    return redirect(url_for('posts_detail_view', post_id=post_id))
+
+# プロフィールページの表示
+@app.route('/profile/<int:user_id>')
+def profile_view(user_id):
+    login_user_id = require_login()
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+    
+    #　user情報 / 投稿一覧 / フォロー状態 / カウント取得　未実装
+    return render_template(
+        'profile/profile.html',
+        login_user_id=login_user_id,
+        user_id=user_id,
+    )
+
+# プロフィール編集ページの表示
+@app.get('/profile/<int:user_id>/edit')
+def profile_edit_view(user_id):
+    login_user_id = require_login()
+    if login_user_id is None:
+        return redirect(url_for('singin_view'))
+
+    # 編集者が自分かチェック（必要なら）
+    return render_template(
+        'profile/profile_edit.html',
+        login_user_id=login_user_id,
+        user_id=user_id,
+    )
+
+#プロフィール編集処理
+@app.post('/profile/<int:user_id>/edit')
+def profile_edit_process(user_id):
+    login_user_id = require_login()
+    if login_user_id is None:
+        return redirect(url_foe('signin_view'))
+
+    flash('プロフィールを更新しました', 'success')
+    return redirect(url_for('profile_view', user_id=user_id))
+
+# フォローリスト
+@app.get('/profile/<int:user_id>/follows')
+def follows_view(user_id):
+    login_user_id = require_login()
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    # フォロー取得未実装
+    follows = []
+    return render_template(
+        'profile/follows.html',
+        login_user_id=login_user_id,
+        user_id=user_id,
+        follows=follows,
+    )
+
+# フォロー処理
+@app.post('/profile/<int:user_id>/follow')
+def follow_process(user_id):
+    login_user_id = require_login()
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    # フォロー登録未実装
+    flash('フォローしました', 'success')
+    return redirect(url_for('profile_view', user_id=user_id))
+
+# フォロー解除処理
+@app.post('/profile/<int:user_id>/unfollow')
+def unfollow_process(user_id):
+    login_user_id = require_login()
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    #　フォロー解除未実装
+    flash('フォロー解除しました', 'success')
+    return redirect(url_for('profile_view', user_id=user_id))
+
+# フォロワーリスト
+@app.get('/profile/<int:user_id>/followers')
+def followers_view(user_id):
+    login_user_id = require_login()
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    # フォロワー取得未実装
+    followers = []
+    return render_template(
+        'profile/followers.html',
+        login_user_id=login_user_id,
+        user_id=user_id,
+        followers=followers,
+    )
+
+# ここまで追加ルート
 
 @app.errorhandler(400)
 def bad_request(error):

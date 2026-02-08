@@ -1,0 +1,128 @@
+# profile pages (profile / profile_edit / follows / followers)
+
+.profile-container {
+	max-width: 760px;
+	margin: 0 auto;
+	padding: 16px;
+}
+
+.profile-header {
+	margin-bottom: 12px;
+}
+
+.back-line {
+	margin-bottom: 12px;
+}
+
+.back-link {
+	text-decoration: none;
+}
+
+.profile-card {
+	display: flex;
+	gap: 16px;
+	padding: 14px;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+}
+
+.profile-avatar .avatar-circle {
+	width: 64px;
+	height: 64px;
+	border: 1px solid #ddd;
+	border-radius: 999px;
+	display: grid;
+	place-items: center;
+	font-size: 28px;
+}
+
+.profile-name {
+	margin: 0 0 6px 0;
+}
+
+.profile-bio {
+	marfin: 0 0 10px 0;
+}
+
+.profile-stats {
+	display: flex;
+	gap: 10px;
+	align-items; center;
+	margin-bottom: 10px;
+}
+
+.dot {
+	opacity: 0.6;
+}
+
+.profile-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin; 12px 0;
+}
+
+.divider {
+	margin: 18px 0;
+	border: 0;
+	border-top: 1px solid #eee;
+}
+
+.section-title {
+	margin: 0 0 8px 0;
+}
+
+.user_list {
+	display: grid;
+	gap: 10px;
+	margin-top: 12px;
+}
+
+.user-card {
+	display: 12px;
+	gap: 1px solid #ddd;
+	margin-top: 10px;
+}
+
+.avatar-inline {
+	margin-right: 8px;
+}
+
+.from {
+	display: grid;
+	gap: 10px;
+	margin-top: 10px;
+}
+
+.label {
+	font-weight: 10px;
+}
+
+.input, .textarea {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+}
+
+.btn {
+	padding: 10px 12px;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	background: transparent;
+	cursor: pointer;
+	text-decoration: none;
+	display: inline-block;
+}
+
+.btn-secondary {
+	opacity: 0.85;
+}
+
+.muted {
+	opacity: 0.75;
+}
+
+.small {
+	font-size: 12px;
+}

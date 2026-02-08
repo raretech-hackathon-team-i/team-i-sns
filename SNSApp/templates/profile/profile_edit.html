@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+
+<div class="profile-container">
+
+  <div class="profile-header">
+    <a class="back-link" href="{{ url_for('profile_view', user_id=user_id) }}">← プロフィールに戻る</a>
+  </div>
+
+  <h2>プロフィール編集</h2>
+
+  <form class="form"
+        method="post"
+        action="{{ url_for('profile_edit_process', user_id=user_id) }}"
+        enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label class="label">アイコン画像（UIのみ）</label>
+    <input class="input" type="file" name="avatar" accept="image/*">
+
+    <label class="label">紹介文（UIのみ）</label>
+    <textarea class="textarea" name="bio" rows="5" placeholder="自己紹介（後でDBに保存）"></textarea>
+
+    <div class="profile-actions">
+      <button class="btn" type="submit">保存</button>
+      <a class="btn btn-secondary" href="{{ url_for('profile_view', user_id=user_id) }}">キャンセル</a>
+    </div>
+
+    <p class="muted small">
+      TODO: Userモデルに bio / avatar_path を追加して保存処理を実装
+    </p>
+  </form>
+
+</div>
+{% endblock %}
+
