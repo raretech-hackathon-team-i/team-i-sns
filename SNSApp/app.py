@@ -6,7 +6,7 @@ import uuid
 import re
 import os
 
-from models import User , Post, Comment, get_db_pool
+from models import User , Post, Comment, get_db_pool, Like
 
 # 定数定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -178,29 +178,6 @@ def delete_post(post_id):
 
     if post['user_id'] != user_id:
         flash('この投稿を削除することはできません', 'error')
-        return redirect(url_for('post_view'))
-
-    Post.delete(post_id)
-    flash('投稿が削除されました', 'success')
-    return redirect(url_for('post_view'))
-
-    Post.create(user_id, content)
-    flash('投稿が完了しました', 'success')
-    return redirect(url_for('posts_view'))
-
-# 削除処理
-@app.route('/posts/<int:post_id>/delete', methods=['GET'])
-def delete_post(post_id):
-    user_id = session.get('user_id')
-    if user_id is None:
-        return redirect(url_for('signin_view'))
-
-    post = Post.find_by_id(post_id)
-    if post is None:
-        abort(404)
-
-    if post['user_id'] != user_id:
-        flash('この投稿を削除することはできません', 'error')
         return redirect(url_for('posts_view'))
 
     Post.delete(post_id)
@@ -240,6 +217,13 @@ def create_comment(post_id):
     Comment.create(user_id, post_id, content)
     flash('コメントの投稿が完了しました','success')
     return redirect(url_for('posts_detail_view', post_id=post_id))
+
+# いいね処理
+@app.route('/like', methods=['POST'])
+def like():
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('signin_view'))
 
 @app.errorhandler(400)
 def bad_request(error):
