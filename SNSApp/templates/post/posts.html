@@ -2,7 +2,7 @@
 extra_css %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/posts.css')}}" />
 {% endblock %} {% block content %}
-<a href="{{ url_for('profile_edit_view') }}">ユーザー情報の変更</a>
+<a href="{{ url_for('profile_edit_view', user_id=user_id) }}">ユーザー情報の変更</a>
 <div class="post-form">
   <form method="POST" action="{{ url_for('posts_process') }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
