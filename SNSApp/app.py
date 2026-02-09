@@ -231,7 +231,7 @@ def require_login():
     return user_id
 
 # いいね機能（非追跡ならuser_idを持たない）
-@app.route('/posts<int:post_id>/likes', methods=['POST'])
+@app.post('/posts/<int:post_id>/likes')
 def toggle_like(post_id):
     user_id = require_login()
     if user_id is None:
@@ -247,12 +247,20 @@ def profile_view(user_id):
     login_user_id = require_login()
     if login_user_id is None:
         return redirect(url_for('signin_view'))
-    
-    #　user情報 / 投稿一覧 / フォロー状態 / カウント取得　未実装
+   
+    user = User.get_user_by_id(user_id)
+    posts = Post.get_by_user_id(user_id)
+
+    for post in posts:
+        post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
+        post['user_name'] = User.get_name_by_id(post['user_id'])
+
     return render_template(
         'profile/profile.html',
         login_user_id=login_user_id,
         user_id=user_id,
+        user=user,
+        posts=posts,
     )
 
 # プロフィール編集ページの表示
@@ -263,18 +271,35 @@ def profile_edit_view(user_id):
         return redirect(url_for('singin_view'))
 
     # 編集者が自分かチェック（必要なら）
+    if login_user_id != user_id:
+        abort(403)
+
+    user = User.get_user_by_id(user_id)
+
     return render_template(
         'profile/profile_edit.html',
         login_user_id=login_user_id,
         user_id=user_id,
+        user=user
     )
 
 #プロフィール編集処理
 @app.post('/profile/<int:user_id>/edit')
 def profile_edit_process(user_id):
     login_user_id = require_login()
+    if login_user_id != user_id:
+        abort(403)
     if login_user_id is None:
-        return redirect(url_foe('signin_view'))
+        return redirect(url_for('signin_view'))
+
+    if login_user_id != user_id:
+        flash('他人のプロフィール画面は編集できません', 'error')
+        return redirect(url_for('profile_view', user_id=user_id))
+
+    name = request.form.get("user_name", "").strip()
+    introduce = request.form.get("user_introduce", "").strip()
+
+    User.update_profile(user_id, name, introduce)
 
     flash('プロフィールを更新しました', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
@@ -349,4 +374,3 @@ def internal_error(error):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-

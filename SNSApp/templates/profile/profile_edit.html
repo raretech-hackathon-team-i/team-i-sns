@@ -17,11 +17,14 @@
         enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
+    <label class="label">ユーザー名</label>
+    <input class="input" type="text" name="user_name" value="{{ user.name }}">
+    
     <label class="label">アイコン画像（UIのみ）</label>
     <input class="input" type="file" name="avatar" accept="image/*">
 
     <label class="label">紹介文（UIのみ）</label>
-    <textarea class="textarea" name="bio" rows="5" placeholder="自己紹介（後でDBに保存）"></textarea>
+    <textarea class="textarea" name="user_introduce" rows="5" placeholder="自己紹介">{{ user.introduce }}</textarea>
 
     <div class="profile-actions">
       <button class="btn" type="submit">保存</button>
