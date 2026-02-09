@@ -95,6 +95,45 @@ def signup_process():
 
     return redirect(url_for('posts_view'))
 
+# プロフィールページ
+@app.get("/profile/<int:user_id>")
+def profile_view(user_id):
+    my_user_id = session.get('user_id')
+    if my_user_id is None:
+        return redirect(url_for('signin_view'))
+    else:
+        user = User.get_user_by_id(user_id)
+        posts = Post.get_by_user_id(user_id) 
+        for post in posts:
+            post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
+            post['user_name'] = User.get_user_by_id(post['user_id'])
+
+        return render_template("profile/profile.html",user=user,posts=posts)
+
+
+# プロフィール編集ページ
+@app.get("/profile/edit")
+def profile_edit_view():
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('signin_view'))
+    else:
+        user = User.get_user_by_id(user_id)
+        return render_template("profile/edit.html",user=user)
+    
+#プロフィールの更新
+@app.post("/profile/edit")
+def profile_update():
+    user_id = session.get("user_id")
+    if user_id is None:
+        return redirect(url_for("signin_view"))
+
+    name = request.form.get("user_name", "").strip()
+    introduce = request.form.get("user_introduce", "").strip()
+
+    User.update_profile(user_id, name, introduce)
+    flash("更新しました", "success")
+    return redirect(url_for("profile_view", user_id=user_id))
 
 # 投稿ページ
 # 投稿一覧ページ
@@ -107,7 +146,7 @@ def posts_view():
         posts = Post.get_all() 
         for post in posts:
             post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-            post['user_name'] = User.get_name_by_id(post['user_id'])
+            post['user_name'] = User.get_user_by_id(post['user_id'])
             # post['like_count'] = Like.get_count_by_post_id(post['id'])
         return render_template('post/posts.html', posts=posts, user_id=user_id)
 
@@ -179,12 +218,12 @@ def posts_detail_view(post_id):
         abort(404)
         
     post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-    post['user_name'] = User.get_name_by_id(post['user_id'])
+    post['user_name'] = User.get_user_by_id(post['user_id'])
 
     comments = Comment.get_by_post_id(post_id)
     for comment in comments:
         comment['created_at'] = comment['created_at'].strftime('%Y-%m-%d %H:%M')
-        comment['user_name'] = User.get_name_by_id(comment['user_id'])
+        comment['user_name'] = User.get_user_by_id(comment['user_id'])
 
     return render_template('post/post_detail.html', post=post, comments = comments, user_id=user_id)
 
@@ -215,4 +254,5 @@ def internal_error(error):
     return render_template("error/500.html"), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)
+

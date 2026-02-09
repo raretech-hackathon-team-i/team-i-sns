@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block title %}プロフィール{% endblock %} {% block
+extra_css %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/posts.css')}}" />
+{% endblock %} {% block content %}
+
+<div class="user-profile">
+  <h2>{{user.name}}</h2>
+  <p>{{user.introduce}}</p>
+</div>
+
+<div class="post-list">
+  {% for post in posts %}
+  <article class="post-card">
+    <div class="post-meta">
+      <span class="post-user">{{ post.user_name }}</span>
+      <time class="post-time">{{ post.created_at }}</time>
+    </div>
+
+    <p class="post-body">{{ post.content }}</p>
+
+    <a
+      class="post-link"
+      href="{{ url_for('posts_detail_view', post_id=post.id) }}"
+      >詳細</a
+    >
+  </article>
+  {% else %}
+  <p>投稿がありません</p>
+  {% endfor %}
+</div>
+{% endblock %}

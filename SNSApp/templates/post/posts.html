@@ -1,32 +1,35 @@
-{% extends "base.html" %}
-{% block title %}投稿一覧{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{{url_for('static', filename='css/posts.css')}}">
-{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}投稿一覧{% endblock %} {% block
+extra_css %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/posts.css')}}" />
+{% endblock %} {% block content %}
+<a href="{{ url_for('profile_edit_view') }}">ユーザー情報の変更</a>
 <div class="post-form">
-	<form method="POST" action="{{ url_for('posts_process') }}">
-		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-		<textarea name="content" rows="4" placeholder="今何してる？"></textarea>
-		<button type="submit">投稿</button>
-	</form>
+  <form method="POST" action="{{ url_for('posts_process') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <textarea name="content" rows="4" placeholder="今何してる？"></textarea>
+    <button type="submit">投稿</button>
+  </form>
 </div>
-
 <div class="post-list">
-	{% for post in posts %}
-		<article class="post-card">
-			<div class ="post-meta">
-				<span class="post-user">{{ post.user_name }}</span>
-				<time class="post-time">{{ post.created_at }}</time>
-			</div>
+  {% for post in posts %}
+  <article class="post-card">
+    <div class="post-meta">
+      <a href="{{ url_for('profile_view', user_id=post.user_id) }}"
+        ><span class="post-user">{{ post.user_name }}</span></a
+      >
+      <time class="post-time">{{ post.created_at }}</time>
+    </div>
 
-			<p class="post-body">{{ post.content }}</p>
+    <p class="post-body">{{ post.content }}</p>
 
-			<a class="post-link" href="{{ url_for('posts_detail_view', post_id=post.id) }}">詳細</a>
-		</article>
-	{% else %}
-		<p>投稿がありません</p>
-	{% endfor %}
+    <a
+      class="post-link"
+      href="{{ url_for('posts_detail_view', post_id=post.id) }}"
+      >詳細</a
+    >
+  </article>
+  {% else %}
+  <p>投稿がありません</p>
+  {% endfor %}
 </div>
 {% endblock %}
