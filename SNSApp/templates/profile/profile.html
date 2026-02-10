@@ -28,7 +28,7 @@
     <button calss="btn" type="submit">フォロー</button>
   </form>
 
-  <form action="{{ url_for('unfollow_process', usre_id=user.id) }}" method="post" class="inline">
+  <form action="{{ url_for('unfollow_process', user_id=user_id) }}" method="post" class="inline">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-secondary" type="submit">フォロー解除</button>
   </form>

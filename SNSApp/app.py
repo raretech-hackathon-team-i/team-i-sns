@@ -259,7 +259,7 @@ def followers_view(user_id):
 		{"id": 3, "name": "佐藤"},
 	]
 
-	return render_template(
+    return render_template(
 		'profile/followers.html',
 		login_user_id=login_user_id,
 		user_id=user_id,
