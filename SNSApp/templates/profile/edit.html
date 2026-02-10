@@ -1,7 +1,9 @@
-{% extends "base.html" %} {% block title %}プロフィール{% endblock %} {% block
-extra_css %}
-<link rel="stylesheet" href="{{url_for('static', filename='css/posts.css')}}" />
-{% endblock %} {% block content %}
+{% extends "base.html" %}
+{% block title %}プロフィール{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{url_for('static', filename='css/profile.css')}}" />
+{% endblock %}
+
+{% block content %}
 
 <h2>ユーザー情報の変更</h2>
 <form class="profile-form" method="post" action="{{url_for('profile_update') }}">
@@ -16,8 +18,12 @@ extra_css %}
             <textarea placeholder="自己紹介文を入れてください" name="user_introduce">{{ user.introduce }}</textarea>
           </div>
 
+	  <div class="label">アイコン画像(UIのみ)</label>
+	  <input class="input" type="file" name="avatar" accept="image/*">
+
           <div class="profile-button-container">
             <button class="profile-button" type="submit">変更する</button>
+	    <a class="btn btn-secondary" href="{{ url_for('profile_view', user_id=user_id) }}">キャンセル</a>
 </form>
   </article>
 </div>
