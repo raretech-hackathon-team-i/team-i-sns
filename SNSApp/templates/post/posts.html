@@ -27,6 +27,16 @@ extra_css %}
       href="{{ url_for('posts_detail_view', post_id=post.id) }}"
       >詳細</a
     >
+    {# いいねボタン試作　ここから  #}
+    <form method="POST" action="{{ url_for('like') }}" style="display: inline;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <input type="hidden" name="post_id" value="{{ post.id }}">    
+      <button type="submit" class="likeBtn">
+        <i class="fa-regular fa-heart"></i> いいね
+      </button>
+    </form>
+    {# いいねボタン試作　ここまで　#}
   </article>
   {% else %}
   <p>投稿がありません</p>

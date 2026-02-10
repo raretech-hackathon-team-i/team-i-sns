@@ -193,22 +193,21 @@ class Comment:
 class Like:
     @classmethod
     def create(cls, user_id, post_id, comment_id):
-    pool = get_db_pool()
-    conn = pool.get_conn()
-    try:
-        with conn.cursor() as cur:
-            sql = "INSERT INTO likes (user_id, post_id, comment_id) VALUES (%s, %s, %s);"
-            cur.execute(sql, (user_id, post_id, comment_id)
-        conn.commit()
-    except pymysql.Error as e:
-        print(f'エラーが発生しています:{e}')
-        abort(500)
-    finally:
-        db_pool.release(conn)
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "INSERT INTO likes (user_id, post_id, comment_id) VALUES (%s, %s, %s);"
+                cur.execute(sql, (user_id, post_id, comment_id))
+            conn.commit()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
 
+'''
     @classmethod
     def delete(cls, like_id):
-    pool = get_db_pool()
     conn = pool.get_conn()
     try:
         with conn.cursor() as cur:
@@ -220,6 +219,7 @@ class Like:
         abort(500)
     finally:
         db_pool.release(conn)
+'''
 '''
     @classmethod
     def get_count_by_post_id(cls, id):
@@ -235,4 +235,4 @@ class Like:
         abort(500)
     finally:
         db_pool.release(conn)
-''
+'''

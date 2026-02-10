@@ -224,6 +224,11 @@ def like():
     user_id = session.get('user_id')
     if user_id is None:
         return redirect(url_for('signin_view'))
+    post_id = request.form.get('post_id')
+    comment_id = request.form.get('comment_id')
+    Like.create(user_id, post_id, comment_id)
+    flash('いいね！ありがとう', 'success')
+    return redirect(url_for('posts_view'))
 
 @app.errorhandler(400)
 def bad_request(error):
