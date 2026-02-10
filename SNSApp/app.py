@@ -108,7 +108,7 @@ def profile_view(user_id):
             post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
             post['user_name'] = User.get_user_by_id(post['user_id'])
 
-        return render_template("profile/profile.html",user=user,posts=posts)
+        return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id)
 
 
 # プロフィール編集ページ
@@ -119,7 +119,7 @@ def profile_edit_view():
         return redirect(url_for('signin_view'))
     else:
         user = User.get_user_by_id(user_id)
-        return render_template("profile/edit.html",user=user)
+        return render_template("profile/edit.html",user=user,user_id=user_id)
     
 #プロフィールの更新
 @app.post("/profile/edit")
@@ -217,6 +217,74 @@ def create_comment(post_id):
     Comment.create(user_id, post_id, content)
     flash('コメントの投稿が完了しました','success')
     return redirect(url_for('posts_detail_view', post_id=post_id))
+
+@app.post('/posts/<int:post_id>/likes')
+def toggle_like(post_id):
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('signin_view'))
+
+    flash('いいねしました', 'success')
+    return redirect(url_for('posts_detail_view', post_id=post_id))
+
+@app.get('/profile/<int:user_id>/follows')
+def follows_view(usre_id):
+    login_user_id =session.get('user_id')
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    user = User.get_user_by_id(usre_id)
+    follows = [
+        {"id": 1, "name": "山田"},
+    ]
+
+    return render_template(
+        'profile/follows.html',
+        login_user_id=login_user_id,
+        user_id=user_id,
+        user=user,
+        follows=follows,
+    )
+
+@app.get('/profile/<int:user_id>/followers')
+def followers_view(user_id):
+    login_user_id = session.get('user_id')
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    user = User.get_user_by_id(user_id)
+
+    # UI確認用のダミーデータ
+    followers = [
+		{"id": 3, "name": "佐藤"},
+	]
+
+	return render_template(
+		'profile/followers.html',
+		login_user_id=login_user_id,
+		user_id=user_id,
+		user=user,
+		followers=followers,
+	)
+		
+
+@app.post('/profile/<int:user_id>/follow')
+def follow_process(user_id):
+    login_user_id = session.get('user_id')
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    flash('フォローしました(UIのみ), success')
+    return redirect(url_for('profile_view', user_id=user_id))
+
+@app.post('/profile/<int:user_id>/unfollow')
+def unfollow_process(user_id):
+    login_user_id = session.get('user_id')
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    flash('フォロー解除しました(UIのみ)', 'success')
+    return redirect(url_for('profile_view', user_id=user_id))
 
 @app.errorhandler(400)
 def bad_request(error):

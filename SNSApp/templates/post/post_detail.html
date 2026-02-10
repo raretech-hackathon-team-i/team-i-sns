@@ -22,6 +22,12 @@
       <textarea name="content" rows="3" placeholder="コメントを書く"></textarea>
       <button type="submit">コメント</button>
     </form>
+    
+    <form action="{{ url_for('toggle_like', post_id=post.id) }}" method="post" class="inline">
+      <input type="hidden" name="csrf-token" value="{{ csrf_token() }}">
+      <button class="btn" type="submit">いいね</button>
+    </form>
+
   {% else %}
     <p>※投稿が未接続のためコメントできません</p>
   {% endif %}

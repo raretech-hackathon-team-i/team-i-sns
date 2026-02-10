@@ -9,6 +9,10 @@ extra_css %}
     <textarea name="content" rows="4" placeholder="今何してる？"></textarea>
     <button type="submit">投稿</button>
   </form>
+
+  <input type="file" name="image" accept="image/*" disabled>
+  <small>UIのみ</small>
+
 </div>
 <div class="post-list">
   {% for post in posts %}
