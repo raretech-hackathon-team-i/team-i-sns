@@ -6,12 +6,13 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="auth-container">
-    <h1 class="auth-title">Intro to SNS</h1>
+    <h1 class="auth-title">Intro to SNS App Development</h1>
 
     <div class="button-group">
-        <a class="btn" href="{{ url_for('signin_view') }}">ログインはこちら</a>
-        <a class="btn" href="{{ url_for('signup_view') }}">新規登録はこちら</a>
+        <a class="btn" href="{{ url_for('signin_view') }}">Log in here</a>
+        <a class="btn" href="{{ url_for('signup_view') }}">Sign up here</a>
     </div>
 </div>
 {# 必要ならflash表示を入れる #} {% endblock %}
