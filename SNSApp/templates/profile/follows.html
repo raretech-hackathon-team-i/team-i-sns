@@ -1,3 +1,4 @@
+(.venv) matsuoka@B835008:~/team-i-sns$ cat SNSApp/templates/profile/profile.html
 {% extends "base.html" %}
 {% block title %}プロフィール{% endblock %}
 {% block extra_css %}
@@ -22,17 +23,6 @@
 
     <a class="post-link" href="{{ url_for('posts_detail_view', post_id=post.id) }}">詳細</a>
   </article>
-
-  <form action="{{ url_for('follow_process', user_id=user_id) }}" method="post" class="inline">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button calss="btn" type="submit">フォロー</button>
-  </form>
-
-  <form action="{{ url_for('unfollow_process', user_id=user_id) }}" method="post" class="inline">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button class="btn btn-secondary" type="submit">フォロー解除</button>
-  </form>
-
   {% else %}
   <p>投稿がありません</p>
   {% endfor %}
