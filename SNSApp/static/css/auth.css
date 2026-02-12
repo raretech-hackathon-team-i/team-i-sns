@@ -1,74 +1,111 @@
-
 body {
-    text-align: center;
-    padding: 50px;
-    margin: 0;
+  text-align: center;
+  padding: 50px;
+  margin: 0;
 }
 
 .auth-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 80vh;
-    text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
 }
 
 .auth-title {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 700;
-    font-size: 3rem;
-    color: #3a273d;
-    margin-bottom: 100px;
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-size: 3rem;
+  color: #3a273d;
+  margin-bottom: 100px;
 }
 
 .button-group {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;         
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
 }
 
 .btn {
-    width: 250px;
-    padding: 10px 0;
-    font-size: 18px;
-    border: none;
-    border-radius: 30px;
-    background-color: #0a0a0a;
-    color: whitesmoke;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+  width: 250px;
+  padding: 10px 0;
+  font-size: 18px;
+  border: none;
+  border-radius: 30px;
+  background-color: #0a0a0a;
+  color: whitesmoke;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    transform 0.2s;
 }
 
 .btn:hover {
-    background-color: #9ba29b;
-    transform: translateY(-2px);
+  background-color: #9ba29b;
+  transform: translateY(-2px);
 }
 
 .btn:active {
-    background-color: #2c5ca8;
-    transform: translateY(0);
+  background-color: #2c5ca8;
+  transform: translateY(0);
 }
 
 .flash {
-    margin: 20px auto;
-    padding: 10px 20px;
-    border-radius: 5px;
-    max-width: 400px;
-    text-align: center;
-    background-color: #ffefc0;
-    color: #856404;
-    border: 1px solid #ffeeba;
+  margin: 20px auto;
+  padding: 10px 20px;
+  border-radius: 5px;
+  max-width: 400px;
+  text-align: center;
+  background-color: #ffefc0;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+/* パスワード強度バー　*/
+
+.pw-strength {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.pw-bar-bg {
+  display: inline-block;
+  width: 150px;
+  height: 10px;
+  background-color: #eee;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.pw-bar {
+  height: 100%;
+  width: 0%;
+  transition:
+    width 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.pw-label {
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 13px;
+  margin-top: 4px;
+  min-height: 18px;
+  display: none;
 }
 
 @media (max-width: 480px) {
-    h1 {
-        font-size: 2rem;
-    }
-    .btn {
-        width: 80%;
-        font-size: 1rem;
-    }
+  h1 {
+    font-size: 2rem;
+  }
+  .btn {
+    width: 80%;
+    font-size: 1rem;
+  }
 }
-
