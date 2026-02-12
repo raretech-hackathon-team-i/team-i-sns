@@ -299,7 +299,7 @@ def follow_process(user_id):
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
-    flash('フォローしました(UIのみ), success')
+    flash('フォローしました(UIのみ)', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
 
 @app.post('/profile/<int:user_id>/unfollow')

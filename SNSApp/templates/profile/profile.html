@@ -10,31 +10,35 @@
   <p>{{user.introduce}}</p>
 </div>
 
+<div class="profile-links">
+  <a href="{{ url_for('follows_view', user_id=user.id) }}">フォローリスト</a>
+  <a href="{{ url_for('followers_view', user_id=user.id) }}">フォロワーリスト</a>
+</div>
+
+{ if session.get('user_id') and session.get('user_id') != user.id %}
+  <form action="{{ url_for('follow_process', user_id=user.id) }}" method="post" class="inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn" type="submit">フォロー</button>
+  </form>
+
+  <form action="{{ url_for('unfollow_process', user_id=user.id) }}" method="post" class="inline">
+    <input type="hidden" name=csrf_token" value="{{ csrf_token() }}">
+    <button class="btn" type="submit">フォロー解除</button>
+  </form>
+
 <div class="post-list">
   {% for post in posts %}
-  <article class="post-card">
-    <div class="post-meta">
-      <span class="post-user">{{ post.user_name }}</span>
-      <time class="post-time">{{ post.created_at }}</time>
-    </div>
+    <article class="post-card">
+      <div class="post-meta">
+        <span class="post-user">{{ post.user_name }}</span>
+        <time class="post-time">{{ post.created_at }}</time>
+      </div>
 
-    <p class="post-body">{{ post.content }}</p>
+      <p class="post-body">{{ post.content }}</p>
 
-    <a class="post-link" href="{{ url_for('posts_detail_view', post_id=post.id) }}">詳細</a>
-  </article>
-
-  <form action="{{ url_for('follow_process', user_id=user_id) }}" method="post" class="inline">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button calss="btn" type="submit">フォロー</button>
-  </form>
-
-  <form action="{{ url_for('unfollow_process', user_id=user_id) }}" method="post" class="inline">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button class="btn btn-secondary" type="submit">フォロー解除</button>
-  </form>
-
-  {% else %}
-  <p>投稿がありません</p>
-  {% endfor %}
+      <a class="post-link" href="{{ url_for('posts_detail_view', post_id=post.id) }}">詳細</a>
+    </article>
+  {% endfor %}  
 </div>
+
 {% endblock %}
