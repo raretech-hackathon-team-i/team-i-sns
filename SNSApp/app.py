@@ -6,7 +6,7 @@ import uuid
 import re
 import os
 
-from models import User , Post, Comment, get_db_pool
+from models import User , Post, Comment, get_db_pool, Like
 
 # 定数定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -218,14 +218,19 @@ def create_comment(post_id):
     flash('コメントの投稿が完了しました','success')
     return redirect(url_for('posts_detail_view', post_id=post_id))
 
+# いいね処理
 @app.post('/posts/<int:post_id>/likes')
 def toggle_like(post_id):
     user_id = session.get('user_id')
     if user_id is None:
         return redirect(url_for('signin_view'))
+    
+    post_id = request.form.get('post_id')
+    comment_id = request.form.get('comment_id')
+    Like.create(user_id, post_id, comment_id)
 
     flash('いいねしました', 'success')
-    return redirect(url_for('posts_detail_view', post_id=post_id))
+    return redirect(url_for('posts_view', post_id=post_id))
 
 @app.get('/profile/<int:user_id>/follows')
 def follows_view(usre_id):
