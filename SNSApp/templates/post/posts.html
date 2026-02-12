@@ -10,9 +10,8 @@ extra_css %}
     <button type="submit">投稿</button>
   </form>
 
-  <input type="file" name="image" accept="image/*" disabled>
+  <input type="file" name="image" accept="image/*" disabled />
   <small>UIのみ</small>
-
 </div>
 <div class="post-list">
   {% for post in posts %}
@@ -31,11 +30,15 @@ extra_css %}
       href="{{ url_for('posts_detail_view', post_id=post.id) }}"
       >詳細</a
     >
-    {# いいねボタン試作 ここから  #}
-    <form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}" style="display: inline;">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {# いいねボタン試作 ここから #}
+    <form
+      method="POST"
+      action="{{ url_for('toggle_like', post_id=post.id) }}"
+      style="display: inline"
+    >
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
-      <input type="hidden" name="post_id" value="{{ post.id }}">    
+      <input type="hidden" name="post_id" value="{{ post.id }}" />
       <button type="submit" class="likeBtn">
         <i class="fa-regular fa-heart"></i> いいね
       </button>
@@ -45,5 +48,6 @@ extra_css %}
   {% else %}
   <p>投稿がありません</p>
   {% endfor %}
+  <a href="{{ url_for('logout') }}">ログアウト</a>
 </div>
 {% endblock %}
