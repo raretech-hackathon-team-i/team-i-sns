@@ -3,12 +3,5 @@
         <h1 class="site-title">
             <a href="{{ url_for('top_view') }}">Intro to SNS</a>
         </h1>
-
-        <nav>
-          {% if session.get('user_id') %}
-            <a href="{{ url_for('posts_view') }}">投稿</a>
-            <a href="{{ url_for('logout') }}">ログアウト</a>
-          {% endif %}
-        </nav>
     </div>
 </header>
