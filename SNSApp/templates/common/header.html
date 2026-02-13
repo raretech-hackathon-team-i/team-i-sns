@@ -8,9 +8,6 @@
           {% if session.get('user_id') %}
             <a href="{{ url_for('posts_view') }}">投稿</a>
             <a href="{{ url_for('logout') }}">ログアウト</a>
-          {% else %}
-            <a href="{{ url_for('signin_view') }}">ログイン</a>
-            <a href="{{ url_for('signup_view') }}">新規登録</a>
           {% endif %}
         </nav>
     </div>

@@ -253,12 +253,12 @@ def toggle_like(post_id):
     return redirect(url_for('posts_view', post_id=post_id))
 
 @app.get('/profile/<int:user_id>/follows')
-def follows_view(usre_id):
+def follows_view(user_id):
     login_user_id =session.get('user_id')
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
-    user = User.get_user_by_id(usre_id)
+    user = User.get_user_by_id(user_id)
     follows = [
         {"id": 1, "name": "山田"},
     ]
