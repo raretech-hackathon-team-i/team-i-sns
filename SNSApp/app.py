@@ -5,8 +5,11 @@ import hashlib
 import uuid
 import re
 import os
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError, InvalidHash
+from zxcvbn import zxcvbn
 
-from models import User , Post, Comment, get_db_pool
+from models import User , Post, Comment, get_db_pool, Like
 
 # 定数定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -26,6 +29,10 @@ get_db_pool()
 def top_view():
     return render_template("auth/top.html", hide_header=True)
 
+    if "user_id" in session:
+        return redirect(url_for("posts_view"))
+    return render_template("auth/top.html")
+
 # サインインページ
 @app.get("/signin")
 def signin_view():
@@ -36,7 +43,8 @@ def signin_view():
 def signin_process():
     email = request.form.get('email', '').strip()
     password = request.form.get('password', '')
-    
+    ph = PasswordHasher()
+
     if email == '' or password == '':
         flash('メールアドレスかパスワードが空です','error')
     else:
@@ -44,12 +52,13 @@ def signin_process():
         if user is None:
             flash('メールアドレスかパスワードが違います','error')
         else:
-            hashPassword = hashlib.sha256(password.encode('utf-8')).hexdigest()
-            if hashPassword != user["password"]:
-                flash('メールアドレスかパスワードが違います','error')
-            else:
+            try:
+                ph.verify(user["password"], password)
                 session['user_id'] = user["id"]
                 return redirect(url_for('posts_view'))
+            except VerifyMismatchError:
+                flash('メールアドレスかパスワードが違います','error')
+
     return redirect(url_for('signin_view'))
  
 
@@ -71,6 +80,12 @@ def signup_process():
         flash("空の入力項目があります", 'error')
         return redirect(url_for('signup_view'))
     
+    # 強度チェック
+    analysis = zxcvbn(password)
+    if analysis["score"] < 3:
+        flash("パスワードの強度が弱すぎます", "error")
+        return redirect(url_for('signup_view'))
+    
     #パスワード一致チェック
     if password != password_confirmation:
         flash('確認用パスワードが一致していません','error')
@@ -86,8 +101,9 @@ def signup_process():
     if registered_user is not None:
         flash('既に登録されているメールアドレスです','error')
         return redirect(url_for('signup_view'))
-
-    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    
+    ph = PasswordHasher()
+    hashed_password = ph.hash(password)
 
     user_id = User.create(name, email, hashed_password)
 
@@ -95,6 +111,51 @@ def signup_process():
 
     return redirect(url_for('posts_view'))
 
+#ログアウト処理
+@app.route("/logout")
+def logout():
+    session.clear()
+    return  redirect(url_for("top_view"))
+
+# プロフィールページ
+@app.get("/profile/<int:user_id>")
+def profile_view(user_id):
+    my_user_id = session.get('user_id')
+    if my_user_id is None:
+        return redirect(url_for('signin_view'))
+    else:
+        user = User.get_user_by_id(user_id)
+        posts = Post.get_by_user_id(user_id) 
+        for post in posts:
+            post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
+            post['user_name'] = User.get_user_by_id(post['user_id'])
+
+        return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id)
+
+
+# プロフィール編集ページ
+@app.get("/profile/edit")
+def profile_edit_view():
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('signin_view'))
+    else:
+        user = User.get_user_by_id(user_id)
+        return render_template("profile/edit.html",user=user,user_id=user_id)
+    
+#プロフィールの更新
+@app.post("/profile/edit")
+def profile_update():
+    user_id = session.get("user_id")
+    if user_id is None:
+        return redirect(url_for("signin_view"))
+
+    name = request.form.get("user_name", "").strip()
+    introduce = request.form.get("user_introduce", "").strip()
+
+    User.update_profile(user_id, name, introduce)
+    flash("更新しました", "success")
+    return redirect(url_for("profile_view", user_id=user_id))
 
 # 投稿ページ
 # 投稿一覧ページ
@@ -107,7 +168,7 @@ def posts_view():
         posts = Post.get_all() 
         for post in posts:
             post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-            post['user_name'] = User.get_name_by_id(post['user_id'])
+            post['user_name'] = User.get_user_by_id(post['user_id'])
             # post['like_count'] = Like.get_count_by_post_id(post['id'])
         return render_template('post/posts.html', posts=posts, user_id=user_id)
 
@@ -156,12 +217,12 @@ def posts_detail_view(post_id):
         abort(404)
         
     post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-    post['user_name'] = User.get_name_by_id(post['user_id'])
+    post['user_name'] = User.get_user_by_id(post['user_id'])
 
     comments = Comment.get_by_post_id(post_id)
     for comment in comments:
         comment['created_at'] = comment['created_at'].strftime('%Y-%m-%d %H:%M')
-        comment['user_name'] = User.get_name_by_id(comment['user_id'])
+        comment['user_name'] = User.get_user_by_id(comment['user_id'])
 
     return render_template('post/post_detail.html', post=post, comments = comments, user_id=user_id)
 
@@ -179,6 +240,79 @@ def create_comment(post_id):
     flash('コメントの投稿が完了しました','success')
     return redirect(url_for('posts_detail_view', post_id=post_id))
 
+# いいね処理
+@app.post('/posts/<int:post_id>/likes')
+def toggle_like(post_id):
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect(url_for('signin_view'))
+    
+    post_id = request.form.get('post_id')
+    comment_id = request.form.get('comment_id')
+    Like.create(user_id, post_id, comment_id)
+
+    flash('いいねしました', 'success')
+    return redirect(url_for('posts_view', post_id=post_id))
+
+@app.get('/profile/<int:user_id>/follows')
+def follows_view(usre_id):
+    login_user_id =session.get('user_id')
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    user = User.get_user_by_id(usre_id)
+    follows = [
+        {"id": 1, "name": "山田"},
+    ]
+
+    return render_template(
+        'profile/follows.html',
+        login_user_id=login_user_id,
+        user_id=user_id,
+        user=user,
+        follows=follows,
+    )
+
+@app.get('/profile/<int:user_id>/followers')
+def followers_view(user_id):
+    login_user_id = session.get('user_id')
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    user = User.get_user_by_id(user_id)
+
+    # UI確認用のダミーデータ
+    followers = [
+		{"id": 3, "name": "佐藤"},
+	]
+
+    return render_template(
+		'profile/followers.html',
+		login_user_id=login_user_id,
+		user_id=user_id,
+		user=user,
+		followers=followers,
+	)
+		
+
+@app.post('/profile/<int:user_id>/follow')
+def follow_process(user_id):
+    login_user_id = session.get('user_id')
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    flash('フォローしました(UIのみ), success')
+    return redirect(url_for('profile_view', user_id=user_id))
+
+@app.post('/profile/<int:user_id>/unfollow')
+def unfollow_process(user_id):
+    login_user_id = session.get('user_id')
+    if login_user_id is None:
+        return redirect(url_for('signin_view'))
+
+    flash('フォロー解除しました(UIのみ)', 'success')
+    return redirect(url_for('profile_view', user_id=user_id))
+
 @app.errorhandler(400)
 def bad_request(error):
     return render_template('error/400.html'), 400
@@ -193,3 +327,7 @@ def internal_error(error):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+
+
+

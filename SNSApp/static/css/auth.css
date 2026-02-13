@@ -1,3 +1,4 @@
+
 .button-group {
     display: flex;
     flex-direction: column;
@@ -173,13 +174,51 @@ border-radius: 50px;
     border: 1px solid #ffeeba;
 }
 
-@media (max-width: 480px) {
-    h1 {
-        font-size: 2rem;
-    }
 
-    .btn {
-        width: 80%;
-        font-size: 1rem;
-    }
+/* パスワード強度バー　*/
+
+.pw-strength {
+  margin-top: 8px;
+  text-align: center;
 }
+
+.pw-bar-bg {
+  display: inline-block;
+  width: 150px;
+  height: 10px;
+  background-color: #eee;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.pw-bar {
+  height: 100%;
+  width: 0%;
+  transition:
+    width 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.pw-label {
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 13px;
+  margin-top: 4px;
+  min-height: 18px;
+  display: none;
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2rem;
+  }
+  .btn {
+    width: 80%;
+    font-size: 1rem;
+  }
+}
+
