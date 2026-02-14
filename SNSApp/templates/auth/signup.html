@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 {% block title %}新規登録{% endblock %}
 {% block extra_css %}
@@ -12,93 +11,44 @@
     <form class="auth-form" method="post" action="{{ url_for('signup_process') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <div>
-        <input type="text" placeholder="Username" name="name" />
+        <input type="text" placeholder="ユーザー名" id="name" name="name" />
       </div>
 
       <div>
-        <input type="text" placeholder="Mail" name="email" />
+        
+        <input type="text" placeholder="メールアドレス" id="email" name="email" />
+        <div class="error-message" id="emailError"></div>
       </div>
 
       <div>
-        <input type="password" placeholder="Password" name="password" />
+        
+        <input type="password" placeholder="パスワード" name="password" id="password" />
+        <div class="error-message" id="passwordError"></div>
+        <!-- パスワード強度表示） -->
+        <div class="pw-strength">
+          <div class="pw-bar-bg">
+            <div id="pwBar" class="pw-bar"></div>
+          </div>
+          <div id="pwLabel" class="pw-label">パスワード強度：-</div>
+        </div>
       </div>
 
       <div>
-        <input type="password" placeholder="Comfirm Password" name="password_confirmation" />
+        <input type="password" placeholder="パスワード(確認用)" name="password_confirmation" id="passwordConfirm" />
+        <div class="error-message" id="confirmError"></div>
       </div>
 
       <div class="auth-button-container">
-        <button class="auth-button" type="submit">Sign Up</button>
-
+        <button class="auth-button" type="submit" id="signupBtn" disabled>新規登録</button>
         <a class="switch-auth-mode" href="{{ url_for('top_view') }}">
-          Log in here
+          ログインはこちら
         </a>
-
-        {% endblock %}
       </div>
     </form>
   </div>
-</div>
-
-{% extends "base.html" %} {% block title %}新規登録{% endblock %} {% block
-extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css')}}" />
-{% endblock %} {% block content %}
-<h1>新規登録</h1>
-<form class="auth-form" method="post" action="{{ url_for('signup_process') }}">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-  <div>
-    <label>ユーザー名</label>
-    <input type="text" placeholder="ユーザー名" id="name" name="name" />
   </div>
 
-  <div>
-    <label>メールアドレス</label>
-    <input type="text" placeholder="メールアドレス" id="email" name="email" />
-    <div class="error-message" id="emailError"></div>
-  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+  <script src="{{ url_for('static', filename='js/password-strength.js') }}"></script>
 
-  <div>
-    <label>パスワード</label>
-    <input
-      type="password"
-      placeholder="パスワード"
-      name="password"
-      id="password"
-    />
-    <div class="error-message" id="passwordError"></div>
-      <!-- パスワード強度表示） -->
-  <div class="pw-strength">
-    <div class="pw-bar-bg">
-      <div id="pwBar" class="pw-bar"></div>
-    </div>
-    <div id="pwLabel" class="pw-label">パスワード強度：-</div>
-  </div>
-</div>
-
-  </div>
-
-  <div>
-    <label>パスワード(確認用)</label>
-    <input
-      type="password"
-      placeholder="パスワード(確認用)"
-      name="password_confirmation"
-      id="passwordConfirm"
-    />
-    <div class="error-message" id="confirmError"></div>
-  </div>
-
-  <div class="auth-button-container">
-    <button class="auth-button" type="submit" id="signupBtn" disabled>新規登録</button>
-    <a class="switch-auth-mode" href="{{ url_for('top_view') }}">
-      ログインはこちら
-    </a>
-  </div>
-</form>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
-<script src="{{ url_for('static', filename='js/password-strength.js') }}"></script>
-
-{% endblock %}
-
+  {% endblock %}
