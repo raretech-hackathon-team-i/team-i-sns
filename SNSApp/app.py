@@ -27,11 +27,10 @@ get_db_pool()
 # ルートログインページ
 @app.route("/")
 def top_view():
-    return render_template("auth/top.html", hide_header=True)
-
     if "user_id" in session:
         return redirect(url_for("posts_view"))
-    return render_template("auth/top.html")
+    return render_template("auth/top.html", hide_header=True)
+
 
 # サインインページ
 @app.get("/signin")
@@ -255,7 +254,7 @@ def toggle_like(post_id):
     return redirect(url_for('posts_view', post_id=post_id))
 
 @app.get('/profile/<int:user_id>/follows')
-def follows_view(usre_id):
+def follows_view(user_id):
     login_user_id =session.get('user_id')
     if login_user_id is None:
         return redirect(url_for('signin_view'))
