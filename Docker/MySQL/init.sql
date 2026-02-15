@@ -103,6 +103,16 @@ CREATE TABLE
         CONSTRAINT fk_post_medias_media FOREIGN KEY (media_id) REFERENCES medias (id)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE follows (
+    follower_id BIGINT UNSIGNED NOT NULL,
+    followed_id BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (follower_id, followed_id),
+    KEY idx_followed (followed_id),
+    CONSTRAINT fk_follows_follower FOREIGN KEY (follower_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_follows_followed FOREIGN KEY (followed_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
 INSERT INTO users (name, email, password)
 VALUES 
   ('山田太郎', 'taro@example.com', '937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244'),

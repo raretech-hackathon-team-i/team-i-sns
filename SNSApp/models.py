@@ -205,7 +205,52 @@ class Like:
         finally:
             db_pool.release(conn)
 
-'''
+# フォロークラス
+class Follow:
+    @classmethod
+    def create(cls, follower_id, followed_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "INSERT IGNORE INTO follows (follower_id, followed_id) VALUES (%s, %s);"
+                cur.execute(sql, (follower_id, followed_id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
+    def delete(cls, follower_id, followed_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "DELETE FROM follows WHERE follower_id = %s AND followed_id = %s;"
+                cur.execute(sql, (follower_id, followed_id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
+    def count_followers(cls, user_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "SELECT COUNT(*) AS cnt FROM follows WHERE followed_id = %s;"
+                cur.execute(sql, (user_id,))
+                row = cur.fetchone()
+            return row["cnt"]
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+''' 
     @classmethod
     def delete(cls, like_id):
     conn = pool.get_conn()

@@ -6,7 +6,7 @@ import uuid
 import re
 import os
 
-from models import User , Post, Comment, get_db_pool, Like
+from models import User , Post, Comment, get_db_pool, Like, Follow
 
 # 定数定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -107,8 +107,8 @@ def profile_view(user_id):
         for post in posts:
             post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
             post['user_name'] = User.get_user_by_id(post['user_id'])
-
-        return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id)
+        followers_count = Follow.count_followers(user_id)  
+        return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id,followers_count=followers_count)
 
 
 # プロフィール編集ページ
@@ -233,12 +233,12 @@ def toggle_like(post_id):
     return redirect(url_for('posts_view', post_id=post_id))
 
 @app.get('/profile/<int:user_id>/follows')
-def follows_view(usre_id):
+def follows_view(user_id):
     login_user_id =session.get('user_id')
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
-    user = User.get_user_by_id(usre_id)
+    user = User.get_user_by_id(user_id)
     follows = [
         {"id": 1, "name": "山田"},
     ]
@@ -279,6 +279,7 @@ def follow_process(user_id):
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
+    Follow.create(login_user_id, user_id)
     flash('フォローしました(UIのみ), success')
     return redirect(url_for('profile_view', user_id=user_id))
 
@@ -288,6 +289,7 @@ def unfollow_process(user_id):
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
+    Follow.delete(login_user_id, user_id)
     flash('フォロー解除しました(UIのみ)', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
 
