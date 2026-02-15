@@ -44,6 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = passwordInput.value || "";
     const confirm = confirmInput.value || "";
 
+    let validEmail = false;
+
     // --- スコア算出（zxcvbnが無い場合は0扱い） ---
     const score =
       password && typeof zxcvbn === "function" ? zxcvbn(password).score : 0;
