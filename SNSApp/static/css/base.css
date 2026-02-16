@@ -1,12 +1,17 @@
+* {
+  box-sizing: border-box;
+}
 
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;  
+  min-height: 100vh;
   margin: 0;
-  background: linear-gradient(45deg, #FC466B, #3F5EFB);
+  background: linear-gradient(45deg, #c5fc46, #3F5EFB, #FC466B);
   font-family: "Roboto", sans-serif;
+  position: relative;
 }
+
 
 .main-content {
   flex: 1;
@@ -35,18 +40,22 @@ header {
   text-align: center;
   color: #000;
   text-decoration: none;
+  display: inline-block;
   transition: color 0.3s;
+  text-shadow: 2px 2px 2px #dae6f3;
 }
 
 .header-container h1 a:hover {
-  color: #dae6f3;
+  color: #3f5eeb;
+  text-decoration: none;
+  transform: translateY(-2px);
 }
 
 footer {
   color: whitesmoke;
   text-align: center;
   padding: 15px 0;
-  margin-top: 50px;
+  margin-top: 20px;
   margin-bottom: 50px;
   font-size: 1.0rem;
 }
@@ -60,35 +69,28 @@ footer {
   transition: all 0.3s;
 }
 
-input, textarea, select, button {
+input,
+textarea,
+select,
+button {
   font-family: inherit;
   font-size: 1rem;
   padding: 8px;
   margin: 5px 0;
 }
 
-.flash {
-  margin: 20px auto;
-  padding: 10px 20px;
-  border-radius: 5px;
-  max-width: 400px;
-  text-align: center;
-  background-color: #ffefc0;
-  color: #856404;
-  border: 1px solid #ffeeba;
-}
 
 @media (max-width: 768px) {
   .container {
     padding: 10px;
   }
+
   header h1 {
     font-size: 3rem;
   }
+
   header nav a {
     display: block;
     margin: 5px 0;
   }
 }
-
-

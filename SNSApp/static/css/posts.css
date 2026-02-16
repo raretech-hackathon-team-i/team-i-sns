@@ -1,7 +1,7 @@
 .post-container {
 	max-width: 100%;
 	margin: 0 auto;
-	padding: 16px;
+	padding: 150px 30px;
 }
 
 .post-form textarea,
@@ -36,4 +36,25 @@
 	padding: 8px 12px;
 	border: 1px solid #ddd;
 	text-decoration: none;
+}
+
+a {
+	font-size: 18px;
+	font-weight: bold;
+	padding: 50px;
+	color: blueviolet;
+	text-decoration: none;
+}
+
+.fa-solid.fa-heart {
+    color: red;
+}
+.likeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+.likeBtn i {
+    margin-right: 4px;
 }
