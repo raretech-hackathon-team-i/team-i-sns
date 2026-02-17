@@ -5,6 +5,9 @@ import hashlib
 import uuid
 import re
 import os
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError, InvalidHash
+from zxcvbn import zxcvbn
 
 from models import User , Post, Comment, get_db_pool, Like, Follow
 
@@ -24,7 +27,10 @@ get_db_pool()
 # ルートログインページ
 @app.route("/")
 def top_view():
-    return render_template("auth/top.html")
+    if "user_id" in session:
+        return redirect(url_for("posts_view"))
+    return render_template("auth/top.html", hide_header=True)
+
 
 # サインインページ
 @app.get("/signin")
@@ -36,7 +42,8 @@ def signin_view():
 def signin_process():
     email = request.form.get('email', '').strip()
     password = request.form.get('password', '')
-    
+    ph = PasswordHasher()
+
     if email == '' or password == '':
         flash('メールアドレスかパスワードが空です','error')
     else:
@@ -44,12 +51,13 @@ def signin_process():
         if user is None:
             flash('メールアドレスかパスワードが違います','error')
         else:
-            hashPassword = hashlib.sha256(password.encode('utf-8')).hexdigest()
-            if hashPassword != user["password"]:
-                flash('メールアドレスかパスワードが違います','error')
-            else:
+            try:
+                ph.verify(user["password"], password)
                 session['user_id'] = user["id"]
                 return redirect(url_for('posts_view'))
+            except VerifyMismatchError:
+                flash('メールアドレスかパスワードが違います','error')
+
     return redirect(url_for('signin_view'))
  
 
@@ -71,6 +79,12 @@ def signup_process():
         flash("空の入力項目があります", 'error')
         return redirect(url_for('signup_view'))
     
+    # 強度チェック
+    analysis = zxcvbn(password)
+    if analysis["score"] < 3:
+        flash("パスワードの強度が弱すぎます", "error")
+        return redirect(url_for('signup_view'))
+    
     #パスワード一致チェック
     if password != password_confirmation:
         flash('確認用パスワードが一致していません','error')
@@ -86,14 +100,21 @@ def signup_process():
     if registered_user is not None:
         flash('既に登録されているメールアドレスです','error')
         return redirect(url_for('signup_view'))
-
-    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    
+    ph = PasswordHasher()
+    hashed_password = ph.hash(password)
 
     user_id = User.create(name, email, hashed_password)
 
     session['user_id'] = user_id
 
     return redirect(url_for('posts_view'))
+
+#ログアウト処理
+@app.route("/logout")
+def logout():
+    session.clear()
+    return  redirect(url_for("top_view"))
 
 # プロフィールページ
 @app.get("/profile/<int:user_id>")
@@ -280,7 +301,7 @@ def follow_process(user_id):
         return redirect(url_for('signin_view'))
 
     Follow.create(login_user_id, user_id)
-    flash('フォローしました(UIのみ), success')
+    flash('フォローしました(UIのみ)', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
 
 @app.post('/profile/<int:user_id>/unfollow')
@@ -301,10 +322,13 @@ def bad_request(error):
 def not_found(error):
     return render_template("error/404.html"), 404
 
-@app.errorhandler(500)
-def internal_error(error):
-    return render_template("error/500.html"), 500
+#@app.errorhandler(500)
+#def internal_error(error):
+#    return render_template("error/500.html"), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+
+
 
