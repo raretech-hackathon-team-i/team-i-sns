@@ -8,16 +8,20 @@ import os
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, InvalidHash
 from zxcvbn import zxcvbn
+from werkzeug.utils import secure_filename
 
-from models import User , Post, Comment, get_db_pool, Like
+from models import User , Post, Comment, get_db_pool, Like, Media, PostMedia
 
 # 定数定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 SESSION_DAYS = 30
+UPLOAD_FOLDER = './static/uploads'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', uuid.uuid4().hex)
 app.permanent_session_lifetime = timedelta(days=SESSION_DAYS)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 csrf = CSRFProtect(app)
 
@@ -170,18 +174,29 @@ def posts_view():
             # post['like_count'] = Like.get_count_by_post_id(post['id'])
         return render_template('post/posts.html', posts=posts, user_id=user_id)
 
-# 投稿処理
+# テキスト・画像投稿処理
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route('/posts', methods=['POST'])
 def posts_process():
     user_id = session.get('user_id')
     if user_id is None:
         return redirect(url_for('signin_view'))
+    # データ取得
     content = request.form.get("content","").strip()
-    if content == '':
-        flash('投稿内容が空です', 'error')
-        return redirect(url_for("posts_view"))
-
-    Post.create(user_id, content)
+    files = request.files.getlist('files[]')
+    # 投稿作成
+    post_id = Post.create(user_id, content)
+    # 画像の保存と登録
+    for file in files:  
+        if file and file.filename != '' and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            # Mediaテーブルに登録
+            media_id = Media.create(user_id, filename)
+            # PostMediaテーブルに登録
+            PostMedia.create(post_id, media_id)
     flash('投稿が完了しました', 'success')
     return redirect(url_for('posts_view'))
 
@@ -322,6 +337,7 @@ def not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     return render_template("error/500.html"), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

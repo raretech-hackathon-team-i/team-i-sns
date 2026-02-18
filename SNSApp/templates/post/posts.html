@@ -4,14 +4,14 @@ extra_css %}
 {% endblock %} {% block content %}
 <a href="{{ url_for('profile_edit_view') }}">ユーザー情報の変更</a>
 <div class="post-form">
-  <form method="POST" action="{{ url_for('posts_process') }}">
+  <form method="POST" action="{{ url_for('posts_process') }}" enctype=multipart/form-data>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <textarea name="content" rows="4" placeholder="今何してる？"></textarea>
+    <input type="file" name="files[]" multiple />
     <button type="submit">投稿</button>
   </form>
 
-  <input type="file" name="image" accept="image/*" disabled />
-  <small>UIのみ</small>
+
 </div>
 <div class="post-list">
   {% for post in posts %}

@@ -122,7 +122,9 @@ class Post:
             with conn.cursor() as cur:
                 sql = "INSERT INTO posts (user_id, content) VALUES (%s, %s);"
                 cur.execute(sql, (user_id, content))
+                new_post_id = cur.lastrowid
                 conn.commit()
+                return new_post_id
         except pymysql.Error as e:
             print(f'エラーが発生しています:{e}')
             abort(500)
@@ -185,6 +187,44 @@ class Comment:
             return comments
         except pymysql.Error as e:
             print(f'エラーが発生しています：{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+# メディアクラス
+class Media:
+    # 画像登録処理
+    @classmethod
+    def create(cls, user_id, file_name):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "INSERT INTO medias (user_id, file_name) VALUES (%s, %s);"
+                cur.execute(sql, (user_id, file_name))
+                new_media_id = cur.lastrowid
+                conn.commit()
+                return new_media_id
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            conn.rollback()
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+# ポストメディアクラス
+class PostMedia:
+    @classmethod
+    def create(cls, post_id, media_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "INSERT INTO post_medias (post_id, media_id) VALUES (%s, %s);"
+                cur.execute(sql, (post_id, media_id))
+                new_post_media_id = cur.lastrowid
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            conn.rollback()
             abort(500)
         finally:
             db_pool.release(conn)
