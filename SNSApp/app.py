@@ -127,9 +127,13 @@ def profile_view(user_id):
         posts = Post.get_by_user_id(user_id) 
         for post in posts:
             post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-            post['user_name'] = User.get_user_by_id(post['user_id'])
-        followers_count = Follow.count_followers(user_id)  
-        return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id,followers_count=followers_count)
+            u = User.get_user_by_id(post['user_id'])
+            post['user_name'] = u['name']
+            post['user_introduce'] = u.get('introduce') 
+        followers_count = Follow.count_followers(user_id)
+        follows_count   = Follow.count_follows(user_id)
+        print("DEBUG_PROFILE_VIEW", type(posts), posts[0].get('user_name'), type(posts[0].get('user_name')))
+        return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id,followers_count=followers_count,follows_count=follows_count)
 
 
 # プロフィール編集ページ
@@ -167,7 +171,8 @@ def posts_view():
         posts = Post.get_all() 
         for post in posts:
             post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-            post['user_name'] = User.get_user_by_id(post['user_id'])
+            u = User.get_user_by_id(post['user_id'])
+            post['user_name'] = u['name']
             # post['like_count'] = Like.get_count_by_post_id(post['id'])
         return render_template('post/posts.html', posts=posts, user_id=user_id)
 
@@ -216,7 +221,8 @@ def posts_detail_view(post_id):
         abort(404)
         
     post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-    post['user_name'] = User.get_user_by_id(post['user_id'])
+    u = User.get_user_by_id(post['user_id'])
+    post['user_name'] = u['name']
 
     comments = Comment.get_by_post_id(post_id)
     for comment in comments:
@@ -253,6 +259,7 @@ def toggle_like(post_id):
     flash('いいねしました', 'success')
     return redirect(url_for('posts_view', post_id=post_id))
 
+#フォローリスト一覧ページ
 @app.get('/profile/<int:user_id>/follows')
 def follows_view(user_id):
     login_user_id =session.get('user_id')
@@ -260,9 +267,7 @@ def follows_view(user_id):
         return redirect(url_for('signin_view'))
 
     user = User.get_user_by_id(user_id)
-    follows = [
-        {"id": 1, "name": "山田"},
-    ]
+    follows = Follow.get_follows(user_id)
 
     return render_template(
         'profile/follows.html',
@@ -272,6 +277,7 @@ def follows_view(user_id):
         follows=follows,
     )
 
+#フォロワーリスト一覧ページ
 @app.get('/profile/<int:user_id>/followers')
 def followers_view(user_id):
     login_user_id = session.get('user_id')
@@ -279,6 +285,11 @@ def followers_view(user_id):
         return redirect(url_for('signin_view'))
 
     user = User.get_user_by_id(user_id)
+    followers = Follow.get_followers(user_id)
+    
+    print("followers:", followers)
+    print("type:", type(followers))
+    print("first:", followers[0] if followers else None)
 
     # UI確認用のダミーデータ
     followers = [
@@ -293,7 +304,7 @@ def followers_view(user_id):
 		followers=followers,
 	)
 		
-
+#フォローボタンを押したとき
 @app.post('/profile/<int:user_id>/follow')
 def follow_process(user_id):
     login_user_id = session.get('user_id')
@@ -301,9 +312,10 @@ def follow_process(user_id):
         return redirect(url_for('signin_view'))
 
     Follow.create(login_user_id, user_id)
-    flash('フォローしました(UIのみ)', 'success')
+    flash('フォローしました', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
 
+#フォロー解除ボタンを押したとき
 @app.post('/profile/<int:user_id>/unfollow')
 def unfollow_process(user_id):
     login_user_id = session.get('user_id')
@@ -311,7 +323,7 @@ def unfollow_process(user_id):
         return redirect(url_for('signin_view'))
 
     Follow.delete(login_user_id, user_id)
-    flash('フォロー解除しました(UIのみ)', 'success')
+    flash('フォロー解除しました', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
 
 @app.errorhandler(400)

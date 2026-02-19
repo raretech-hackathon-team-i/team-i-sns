@@ -1,7 +1,7 @@
-se.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<link rel="styleheet" href="{{ url_for('static', filename='css/profile.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 
 <div class="profile-container">
 
@@ -10,7 +10,7 @@ se.html" %}
   </div>
   
   <h2>フォロワーリスト</h2>
-
+  <p style="font-weight:bold; font-size:24px;">ここは followers.html です</p>
   <div class="user-list">
     {% if followers and followers|length > 0 %}
       {% for u in followers %}

@@ -234,7 +234,8 @@ class Follow:
             abort(500)
         finally:
             db_pool.release(conn)
-
+    
+    #フォロワー数をカウント
     @classmethod
     def count_followers(cls, user_id):
         conn = db_pool.get_conn()
@@ -249,7 +250,54 @@ class Follow:
             abort(500)
         finally:
             db_pool.release(conn)
+    
+    #フォロー数をカウント
+    @classmethod
+    def count_follows(cls, user_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "SELECT COUNT(*) AS cnt FROM follows WHERE follower_id = %s;"
+                cur.execute(sql, (user_id,))
+                row = cur.fetchone()
+            return row["cnt"]
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+    
+    #フォロー一覧ページの表示
+    @classmethod
+    def get_follows(cls, user_id):
+        conn = db_pool.get_conn()
+        cur = conn.cursor()
 
+        sql = "SELECT users.id, users.name FROM follows JOIN users ON follows.followed_id = users.id WHERE follows.follower_id = %s"
+
+        cur.execute(sql, (user_id,))
+        result = cur.fetchall()
+
+        cur.close()
+        db_pool.release(conn)
+
+        return result
+
+    #フォロワー一覧ページの表示
+    @classmethod
+    def get_followers(cls, user_id):
+        conn = db_pool.get_conn()
+        cur = conn.cursor()
+
+        sql = "SELECT users.id, users.name FROM follows JOIN users ON follows.follower_id = users.id WHERE follows.followed_id = %s"
+
+        cur.execute(sql, (user_id,))
+        result = cur.fetchall()
+
+        cur.close()
+        db_pool.release(conn)
+
+        return result
 ''' 
     @classmethod
     def delete(cls, like_id):
