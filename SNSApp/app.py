@@ -132,7 +132,6 @@ def profile_view(user_id):
             post['user_introduce'] = u.get('introduce') 
         followers_count = Follow.count_followers(user_id)
         follows_count   = Follow.count_follows(user_id)
-        print("DEBUG_PROFILE_VIEW", type(posts), posts[0].get('user_name'), type(posts[0].get('user_name')))
         return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id,followers_count=followers_count,follows_count=follows_count)
 
 
@@ -292,9 +291,9 @@ def followers_view(user_id):
     print("first:", followers[0] if followers else None)
 
     # UI確認用のダミーデータ
-    followers = [
-		{"id": 3, "name": "佐藤"},
-	]
+    #followers = [
+	#	{"id": 3, "name": "佐藤"},
+	#]
 
     return render_template(
 		'profile/followers.html',
@@ -310,8 +309,10 @@ def follow_process(user_id):
     login_user_id = session.get('user_id')
     if login_user_id is None:
         return redirect(url_for('signin_view'))
+    print("DEBUG BEFORE INSERT", login_user_id, user_id)
 
     Follow.create(login_user_id, user_id)
+    print("DEBUG AFTER INSERT")
     flash('フォローしました', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
 
