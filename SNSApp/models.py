@@ -298,6 +298,22 @@ class Follow:
         db_pool.release(conn)
 
         return result
+    
+    #follower_id が followed_id をフォローしている場合
+    @classmethod
+    def is_following(cls, follower_id, followed_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "SELECT 1 FROM follows WHERE follower_id=%s AND followed_id=%s LIMIT 1;"
+                cur.execute(sql, (follower_id, followed_id))
+                return cur.fetchone() is not None
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
 ''' 
     @classmethod
     def delete(cls, like_id):

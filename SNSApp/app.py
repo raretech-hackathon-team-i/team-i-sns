@@ -132,7 +132,13 @@ def profile_view(user_id):
             post['user_introduce'] = u.get('introduce') 
         followers_count = Follow.count_followers(user_id)
         follows_count   = Follow.count_follows(user_id)
-        return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id,followers_count=followers_count,follows_count=follows_count)
+
+        # （フォロー済み判定）
+        is_following = False
+        if my_user_id != user_id:
+            is_following = Follow.is_following(my_user_id, user_id)
+
+        return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id,followers_count=followers_count,follows_count=follows_count,is_following=is_following,)
 
 
 # プロフィール編集ページ
@@ -309,7 +315,6 @@ def follow_process(user_id):
     login_user_id = session.get('user_id')
     if login_user_id is None:
         return redirect(url_for('signin_view'))
-    print("DEBUG BEFORE INSERT", login_user_id, user_id)
 
     Follow.create(login_user_id, user_id)
     print("DEBUG AFTER INSERT")
