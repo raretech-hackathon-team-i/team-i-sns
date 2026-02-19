@@ -2,12 +2,15 @@
 {% block title %}プロフィール{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/profile.css')}}" />
+
 {% endblock %}
 {% block content %}
 
 <div class="user-profile">
   <h2>{{user.name}}</h2>
-  <p>{{user.introduce}}</p>
+  <p>{{ user.introduce or '' }}</p>
+  <p>フォロワー数：{{ followers_count }}</p>
+  <p>フォロー数：{{ follows_count }}</p>
 </div>
 
 <div class="profile-links">
@@ -16,26 +19,26 @@
 </div>
 
 {% if session.get('user_id') and session.get('user_id') != user_id %}
-  <form action="{{ url_for('follow_process', user_id=user_id) }}" method="post" class="inline">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button class="btn" type="submit">フォロー</button>
-  </form>
-{% else %}
-
-  <form action="{{ url_for('unfollow_process', user_id=user_id) }}" method="post" class="inline">
-    <input type="hidden" name=csrf_token" value="{{ csrf_token() }}">
-    <button class="btn" type="submit">フォロー解除</button>
-  </form>
+  {% if is_following %}
+    <form action="{{ url_for('unfollow_process', user_id=user_id) }}" method="post" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn" type="submit">フォロー解除</button>
+    </form>
+  {% else %}
+    <form action="{{ url_for('follow_process', user_id=user_id) }}" method="post" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn" type="submit">フォロー</button>
+    </form>
+  {% endif %}
 {% endif %}
 
 <div class="post-list">
   {% for post in posts %}
     <article class="post-card">
       <div class="post-meta">
-        <span class="post-user">{{ post.user_name }}</span>
+        <span class="post-user">{{ post['user_name'] }}</span>
         <time class="post-time">{{ post.created_at }}</time>
       </div>
-
       <p class="post-body">{{ post.content }}</p>
 
       <a class="post-link" href="{{ url_for('posts_detail_view', post_id=post['id']) }}">詳細</a>
