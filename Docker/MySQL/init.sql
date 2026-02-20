@@ -77,28 +77,22 @@ CREATE TABLE
     medias (
         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
         user_id BIGINT UNSIGNED NOT NULL,
-        post_id BIGINT UNSIGNED NOT NULL,
 	file_name VARCHAR(255) NULL,
         created_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
         updated_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
         PRIMARY KEY (id),
         KEY idx_medias_user_id (user_id),
-        KEY idx_medias_post_id (post_id),
-        CONSTRAINT fk_medias_user FOREIGN KEY (user_id) REFERENCES users (id),
-        CONSTRAINT fk_medias_post FOREIGN KEY (post_id) REFERENCES posts (id)
+        CONSTRAINT fk_medias_user FOREIGN KEY (user_id) REFERENCES users (id)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE
     post_medias (
         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-        user_id BIGINT UNSIGNED NOT NULL,
         post_id BIGINT UNSIGNED NOT NULL,
 	media_id BIGINT UNSIGNED NOT NULL,
         PRIMARY KEY (id),
-        KEY idx_post_medias_conn_user_id (user_id),
         KEY idx_post_medias_conn_post_id (post_id),
         KEY idx_post_medias_conn_media_id (media_id),
-        CONSTRAINT fk_post_medias_user FOREIGN KEY (user_id) REFERENCES users (id),
         CONSTRAINT fk_post_medias_post FOREIGN KEY (post_id) REFERENCES posts (id),
         CONSTRAINT fk_post_medias_media FOREIGN KEY (media_id) REFERENCES medias (id)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;

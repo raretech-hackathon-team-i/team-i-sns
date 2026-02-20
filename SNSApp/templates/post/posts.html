@@ -7,16 +7,17 @@
 <a href="{{ url_for('profile_edit_view') }}">ユーザー情報の変更</a>
 
 <div class="post-container">
+    {# 投稿フォーム #}
 	<div class="post-form">
-		<form method="POST" action="{{ url_for('posts_process') }}">
+		<form method="POST" action="{{ url_for('posts_process') }}" enctype=multipart/form-data>
 			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 			<textarea name="content" rows="4" placeholder="今何してる？"></textarea>
+			<input type="file" name="files[]" multiple />
 			<button type="submit">投稿</button>
 		</form>
-
-		<input type="file" name="image" accept="image/*" disabled />
-		<small>UIのみ</small>
 	</div>
+
+    {# 投稿list #}
 	<div class="post-list">
 		{% for post in posts %}
 		<article class="post-card">
@@ -25,29 +26,26 @@
 						post.user_name }}</span></a>
 				<time class="post-time">{{ post.created_at }}</time>
 			</div>
-
+            
 			<p class="post-body">{{ post.content }}</p>
+            <div class="post-images">
+                {% for media in post.medias %}
+                    <img src="{{ url_for('static', filename='uploads/' + media.file_name) }}">
+                {% endfor %}   
+            </div>
 			<a class="post-link" href="{{ url_for('posts_detail_view', post_id=post.id) }}">詳細</a>
+             
+	        {# いいねボタン試作 ここから #}
+	        <form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}" style="display: inline">
+		        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+		        <input type="hidden" name="post_id" value="{{ post.id }}" />
+		        <button type="submit" class="likeBtn">
+			        <i class="fa-regular fa-heart"></i> いいね
+		        </button>
+	        </form>
+	        {# いいねボタン試作 ここまで #}
 		</article>
-
-		<p>投稿がありません</p>
-		
 	</div>
-	
-	<a class="post-link" href="{{ url_for('posts_detail_view', post_id=post.id) }}">詳細</a>
-	{# いいねボタン試作 ここから #}
-	<form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}" style="display: inline">
-		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-
-		<input type="hidden" name="post_id" value="{{ post.id }}" />
-		<button type="submit" class="likeBtn">
-			<i class="fa-regular fa-heart"></i> いいね
-		</button>
-	</form>
-	{# いいねボタン試作 ここまで #}
-	</article>
-
-	<p>投稿がありません</p>
 	{% endfor %}
 	<a href="{{ url_for('logout') }}">ログアウト</a>
 </div>
