@@ -211,6 +211,17 @@ class Media:
         finally:
             db_pool.release(conn)
 
+    @classmethod
+    def find_by_post_id(cls, post_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "SELECT m.file_name FROM medias m JOIN post_medias pm ON m.id = pm.media_id WHERE pm.post_id = %s;"
+                cur.execute(sql, (post_id,))
+                return cur,fetchall()
+            finally:
+                db_pool.release(conn)
+
 # ポストメディアクラス
 class PostMedia:
     @classmethod

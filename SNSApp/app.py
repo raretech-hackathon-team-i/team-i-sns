@@ -186,6 +186,10 @@ def posts_process():
     # データ取得
     content = request.form.get("content","").strip()
     files = request.files.getlist('files[]')
+    files = request.files.getlist('files[]')
+    print(f"DEBUG: 届いたファイルの数 = {len(files)}") # これを足す
+    for f in files:
+        print(f"DEBUG: ファイル名 = {f.filename}")
     # 投稿作成
     post_id = Post.create(user_id, content)
     # 画像の保存と登録
