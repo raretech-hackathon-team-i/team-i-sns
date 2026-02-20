@@ -1,7 +1,8 @@
-se.html" %}
+{% extends "base.html" %}
+{% block title %}フォロワーリスト{% endblock %}
 
 {% block content %}
-<link rel="styleheet" href="{{ url_for('static', filename='css/profile.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 
 <div class="profile-container">
 
@@ -10,7 +11,6 @@ se.html" %}
   </div>
   
   <h2>フォロワーリスト</h2>
-
   <div class="user-list">
     {% if followers and followers|length > 0 %}
       {% for u in followers %}
@@ -22,7 +22,7 @@ se.html" %}
         </div>
       {% endfor %}
     {% else %}
-      <p class="muted">フォロワー一覧は未実装</p>
+      <p class="muted">まだフォロワーはいません</p>
     {% endif %}
   </div>
 

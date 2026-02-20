@@ -1,30 +1,30 @@
-(.venv) matsuoka@B835008:~/team-i-sns$ cat SNSApp/templates/profile/profile.html
 {% extends "base.html" %}
-{% block title %}プロフィール{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{{url_for('static', filename='css/profile.css')}}" />
-{% endblock %}
+{% block title %}フォローリスト{% endblock %}
+
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 
-<div class="user-profile">
-  <h2>{{user.name}}</h2>
-  <p>{{user.introduce}}</p>
-</div>
+<div class="profile-container">
 
-<div class="post-list">
-  {% for post in posts %}
-  <article class="post-card">
-    <div class="post-meta">
-      <span class="post-user">{{ post.user_name }}</span>
-      <time class="post-time">{{ post.created_at }}</time>
-    </div>
+  <div class="profile-container">
+    <a class="back-link" href="{{ url_for('profile_view', user_id=user_id) }}">← プロフィールに戻る</a>
+  </div>
 
-    <p class="post-body">{{ post.content }}</p>
+  <h2>フォローリスト</h2>
+  <div class="user-list">
+    {% if follows and follows|length > 0 %}
+      {% for u in follows %}
+        <div class="user-card">
+          <a href="{{ url_for('profile_view', user_id=u.id) }}">
+      <span class="acatar-inline">👤</span>
+      {{ u.name or ("User #" ~ u.id) }}
+    </a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="muted">まだ誰もフォローしていません</p>
+    {% endif %}
+  </div>
 
-    <a class="post-link" href="{{ url_for('posts_detail_view', post_id=post.id) }}">詳細</a>
-  </article>
-  {% else %}
-  <p>投稿がありません</p>
-  {% endfor %}
 </div>
 {% endblock %}

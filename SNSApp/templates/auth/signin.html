@@ -1,23 +1,33 @@
 {% extends "base.html" %}
 {% block title %}ログイン{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{{url_for('static', filename='css/auth.css')}}">{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/auth.css')}}">{% endblock %}
 {% block content %}
-<h1>ログイン</h1>
-<form class="auth-form" method="post" action="{{url_for('signin_process') }}">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <!-- ===== フォームフィールド ===== -->
-          <div>
-            <label>メールアドレス</label>
-            <input type="text" placeholder="メールアドレス" name="email" />
-          </div>
 
-          <div>
-            <label>パスワード</label>
-            <input type="password" placeholder="パスワード" name="password" />
-          </div>
+<div class="page-auth">
+  <div class="auth-wrapper">
 
-          <div class="auth-button-container">
-            <button class="auth-button" type="submit">サインインする</button>
-	<p><a class="btn" href="{{ url_for('signup_view')}}">新規登録に進む</a></p>
-</form>
+    <h1 class="auth-page-title">Welcome</h1>
+
+    <form class="auth-form" method="post" action="{{url_for('signin_process') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <!-- ===== フォームフィールド ===== -->
+      <div>
+        <input type="text" placeholder="Email" name="email" />
+      </div>
+
+      <div>
+        <input type="password" placeholder="Password" name="password" />
+      </div>
+
+      <div class="auth-button-container">
+        <button class="auth-button" type="submit">Sign In</button>
+        <a class="switch-auth-mode" href="{{ url_for('signup_view')}}">
+          Sign up here
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
