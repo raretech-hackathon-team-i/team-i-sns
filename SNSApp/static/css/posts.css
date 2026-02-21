@@ -51,3 +51,30 @@
 	border: 1px solid #ddd;
 	text-decoration: none;
 }
+
+.likeBtn {
+    color: #fff;
+    font-size: 1em;
+    background-color: transparent;
+    border: 0.1em  solid;
+    border-radius: 10px;
+    padding: 0.33em 1em 0.25em;
+    line-height: 1.2em;
+    cursor: pointer;
+    box-shadow: 0 0.25em 1em -0.25em;
+}
+ .likeButton__icon {
+ display: inline-block;
+ fill: currentColor;
+ width: 0.8em;
+ height: 0.8em;
+ margin-right: 0.2em;
+ outline: 0;
+ }
+.likeBtn:hover {
+    color: #ff0;
+}
+.likeBtn.liked {
+    color: #ff0;
+    border-color: #ff0;
+}

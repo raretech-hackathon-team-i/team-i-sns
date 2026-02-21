@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, session, flash, abort, url_for
+from flask import Flask, request, redirect, render_template, session, flash, abort, url_for, jsonify
 from flask_wtf.csrf import CSRFProtect
 from datetime import timedelta
 import hashlib
@@ -276,14 +276,15 @@ def create_comment(post_id):
 def toggle_like(post_id):
     user_id = session.get('user_id')
     if user_id is None:
-        return redirect(url_for('signin_view'))
-    
-    post_id = request.form.get('post_id')
-    comment_id = request.form.get('comment_id')
-    Like.create(user_id, post_id, comment_id)
+        return jsonify({'status': 'error', 'message': 'login_required'}), 401
 
-    flash('いいねしました', 'success')
-    return redirect(url_for('posts_view', post_id=post_id))
+    result = Like.toggle(user_id, post_id, None)
+
+    return jsonify({
+        'status': 'success',
+        'is_liked': result,
+        'post_id': post_id
+        })
 
 #フォローリスト一覧ページ
 @app.get('/profile/<int:user_id>/follows')
