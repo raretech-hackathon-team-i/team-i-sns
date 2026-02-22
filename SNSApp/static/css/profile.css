@@ -42,7 +42,8 @@
 .profile-stats {
 	display: flex;
 	gap: 10px;
-	align-items; center;
+	align-items;
+	center;
 	margin-bottom: 10px;
 }
 
@@ -93,7 +94,8 @@
 	font-weight: 10px;
 }
 
-.input, .textarea {
+.input,
+.textarea {
 	width: 100%;
 	padding: 10px;
 	border: 1px solid #ddd;
@@ -126,15 +128,24 @@
 .profile-container {
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
+	justify-content: flex-start;
 	align-items: center;
 	text-align: center;
-	height: 600px;
-    margin: 150px auto;     
-    max-width: 800px;      
-    padding: 20px;
-    background: transparent;
-    border-radius: 20px;
-    box-shadow: 0 2px 6px rgba(1, 1, 1, 0.5);
+	height: auto;
+	margin: 50px auto;
+	max-width: 800px;
+	padding: 0 20px 50px;
+	background: transparent;
+	border-radius: 20px;
+	box-shadow: 0 2px 6px rgba(1, 1, 1, 0.5);
+}
 
+.profile-container h2 {
+	  font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: #fff;
+    opacity: 0.7;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 50px;
 }

@@ -8,16 +8,20 @@ import os
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, InvalidHash
 from zxcvbn import zxcvbn
+from werkzeug.utils import secure_filename
 
-from models import User , Post, Comment, get_db_pool, Like
+from models import User , Post, Comment, get_db_pool, Like, Follow, Media, PostMedia
 
 # 定数定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 SESSION_DAYS = 30
+UPLOAD_FOLDER = './static/uploads'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', uuid.uuid4().hex)
 app.permanent_session_lifetime = timedelta(days=SESSION_DAYS)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 csrf = CSRFProtect(app)
 
@@ -127,9 +131,18 @@ def profile_view(user_id):
         posts = Post.get_by_user_id(user_id) 
         for post in posts:
             post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-            post['user_name'] = User.get_user_by_id(post['user_id'])
+            u = User.get_user_by_id(post['user_id'])
+            post['user_name'] = u['name']
+            post['user_introduce'] = u.get('introduce') 
+        followers_count = Follow.count_followers(user_id)
+        follows_count   = Follow.count_follows(user_id)
 
-        return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id)
+        # （フォロー済み判定）
+        is_following = False
+        if my_user_id != user_id:
+            is_following = Follow.is_following(my_user_id, user_id)
+
+        return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id,followers_count=followers_count,follows_count=follows_count,is_following=is_following,)
 
 
 # プロフィール編集ページ
@@ -167,22 +180,40 @@ def posts_view():
         posts = Post.get_all() 
         for post in posts:
             post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-            post['user_name'] = User.get_user_by_id(post['user_id'])
+            u = User.get_user_by_id(post['user_id'])
+            post['user_name'] = u['name']
+            image_list = Media.find_by_post_id(post['id'])
+            post['medias'] = image_list
             # post['like_count'] = Like.get_count_by_post_id(post['id'])
         return render_template('post/posts.html', posts=posts, user_id=user_id)
 
-# 投稿処理
+# テキスト・画像投稿処理
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route('/posts', methods=['POST'])
 def posts_process():
     user_id = session.get('user_id')
     if user_id is None:
         return redirect(url_for('signin_view'))
+    # データ取得
     content = request.form.get("content","").strip()
-    if content == '':
-        flash('投稿内容が空です', 'error')
-        return redirect(url_for("posts_view"))
-
-    Post.create(user_id, content)
+    files = request.files.getlist('files[]')
+    files = request.files.getlist('files[]')
+    print(f"DEBUG: 届いたファイルの数 = {len(files)}") # これを足す
+    for f in files:
+        print(f"DEBUG: ファイル名 = {f.filename}")
+    # 投稿作成
+    post_id = Post.create(user_id, content)
+    # 画像の保存と登録
+    for file in files:  
+        if file and file.filename != '' and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            # Mediaテーブルに登録
+            media_id = Media.create(user_id, filename)
+            # PostMediaテーブルに登録
+            PostMedia.create(post_id, media_id)
     flash('投稿が完了しました', 'success')
     return redirect(url_for('posts_view'))
 
@@ -216,7 +247,8 @@ def posts_detail_view(post_id):
         abort(404)
         
     post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-    post['user_name'] = User.get_user_by_id(post['user_id'])
+    u = User.get_user_by_id(post['user_id'])
+    post['user_name'] = u['name']
 
     comments = Comment.get_by_post_id(post_id)
     for comment in comments:
@@ -253,6 +285,7 @@ def toggle_like(post_id):
     flash('いいねしました', 'success')
     return redirect(url_for('posts_view', post_id=post_id))
 
+#フォローリスト一覧ページ
 @app.get('/profile/<int:user_id>/follows')
 def follows_view(user_id):
     login_user_id =session.get('user_id')
@@ -260,9 +293,7 @@ def follows_view(user_id):
         return redirect(url_for('signin_view'))
 
     user = User.get_user_by_id(user_id)
-    follows = [
-        {"id": 1, "name": "山田"},
-    ]
+    follows = Follow.get_follows(user_id)
 
     return render_template(
         'profile/follows.html',
@@ -272,6 +303,7 @@ def follows_view(user_id):
         follows=follows,
     )
 
+#フォロワーリスト一覧ページ
 @app.get('/profile/<int:user_id>/followers')
 def followers_view(user_id):
     login_user_id = session.get('user_id')
@@ -279,11 +311,16 @@ def followers_view(user_id):
         return redirect(url_for('signin_view'))
 
     user = User.get_user_by_id(user_id)
+    followers = Follow.get_followers(user_id)
+    
+    print("followers:", followers)
+    print("type:", type(followers))
+    print("first:", followers[0] if followers else None)
 
     # UI確認用のダミーデータ
-    followers = [
-		{"id": 3, "name": "佐藤"},
-	]
+    #followers = [
+	#	{"id": 3, "name": "佐藤"},
+	#]
 
     return render_template(
 		'profile/followers.html',
@@ -293,23 +330,27 @@ def followers_view(user_id):
 		followers=followers,
 	)
 		
-
+#フォローボタンを押したとき
 @app.post('/profile/<int:user_id>/follow')
 def follow_process(user_id):
     login_user_id = session.get('user_id')
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
-    flash('フォローしました(UIのみ)', 'success')
+    Follow.create(login_user_id, user_id)
+    print("DEBUG AFTER INSERT")
+    flash('フォローしました', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
 
+#フォロー解除ボタンを押したとき
 @app.post('/profile/<int:user_id>/unfollow')
 def unfollow_process(user_id):
     login_user_id = session.get('user_id')
     if login_user_id is None:
         return redirect(url_for('signin_view'))
 
-    flash('フォロー解除しました(UIのみ)', 'success')
+    Follow.delete(login_user_id, user_id)
+    flash('フォロー解除しました', 'success')
     return redirect(url_for('profile_view', user_id=user_id))
 
 @app.errorhandler(400)
@@ -323,6 +364,7 @@ def not_found(error):
 #@app.errorhandler(500)
 #def internal_error(error):
 #    return render_template("error/500.html"), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

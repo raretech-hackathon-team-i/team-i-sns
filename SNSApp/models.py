@@ -122,7 +122,9 @@ class Post:
             with conn.cursor() as cur:
                 sql = "INSERT INTO posts (user_id, content) VALUES (%s, %s);"
                 cur.execute(sql, (user_id, content))
+                new_post_id = cur.lastrowid
                 conn.commit()
+                return new_post_id
         except pymysql.Error as e:
             print(f'エラーが発生しています:{e}')
             abort(500)
@@ -189,6 +191,55 @@ class Comment:
         finally:
             db_pool.release(conn)
 
+# メディアクラス
+class Media:
+    # 画像登録処理
+    @classmethod
+    def create(cls, user_id, file_name):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "INSERT INTO medias (user_id, file_name) VALUES (%s, %s);"
+                cur.execute(sql, (user_id, file_name))
+                new_media_id = cur.lastrowid
+                conn.commit()
+                return new_media_id
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            conn.rollback()
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
+    def find_by_post_id(cls, post_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "SELECT m.file_name FROM medias m JOIN post_medias pm ON m.id = pm.media_id WHERE pm.post_id = %s;"
+                cur.execute(sql, (post_id,))
+                return cur.fetchall()
+        finally:
+            db_pool.release(conn)
+
+# ポストメディアクラス
+class PostMedia:
+    @classmethod
+    def create(cls, post_id, media_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "INSERT INTO post_medias (post_id, media_id) VALUES (%s, %s);"
+                cur.execute(sql, (post_id, media_id))
+                new_post_media_id = cur.lastrowid
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            conn.rollback()
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
 # いいねクラス
 class Like:
     @classmethod
@@ -205,7 +256,116 @@ class Like:
         finally:
             db_pool.release(conn)
 
-'''
+# フォロークラス
+class Follow:
+    @classmethod
+    def create(cls, follower_id, followed_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "INSERT IGNORE INTO follows (follower_id, followed_id) VALUES (%s, %s);"
+                cur.execute(sql, (follower_id, followed_id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+    @classmethod
+    def delete(cls, follower_id, followed_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "DELETE FROM follows WHERE follower_id = %s AND followed_id = %s;"
+                cur.execute(sql, (follower_id, followed_id))
+                conn.commit()
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+    
+    #フォロワー数をカウント
+    @classmethod
+    def count_followers(cls, user_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "SELECT COUNT(*) AS cnt FROM follows WHERE followed_id = %s;"
+                cur.execute(sql, (user_id,))
+                row = cur.fetchone()
+            return row["cnt"]
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+    
+    #フォロー数をカウント
+    @classmethod
+    def count_follows(cls, user_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "SELECT COUNT(*) AS cnt FROM follows WHERE follower_id = %s;"
+                cur.execute(sql, (user_id,))
+                row = cur.fetchone()
+            return row["cnt"]
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+    
+    #フォロー一覧ページの表示
+    @classmethod
+    def get_follows(cls, user_id):
+        conn = db_pool.get_conn()
+        cur = conn.cursor()
+
+        sql = "SELECT users.id, users.name FROM follows JOIN users ON follows.followed_id = users.id WHERE follows.follower_id = %s"
+
+        cur.execute(sql, (user_id,))
+        result = cur.fetchall()
+
+        cur.close()
+        db_pool.release(conn)
+
+        return result
+
+    #フォロワー一覧ページの表示
+    @classmethod
+    def get_followers(cls, user_id):
+        conn = db_pool.get_conn()
+        cur = conn.cursor()
+
+        sql = "SELECT users.id, users.name FROM follows JOIN users ON follows.follower_id = users.id WHERE follows.followed_id = %s"
+
+        cur.execute(sql, (user_id,))
+        result = cur.fetchall()
+
+        cur.close()
+        db_pool.release(conn)
+
+        return result
+    
+    #follower_id が followed_id をフォローしている場合
+    @classmethod
+    def is_following(cls, follower_id, followed_id):
+        conn = db_pool.get_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = "SELECT 1 FROM follows WHERE follower_id=%s AND followed_id=%s LIMIT 1;"
+                cur.execute(sql, (follower_id, followed_id))
+                return cur.fetchone() is not None
+        except pymysql.Error as e:
+            print(f'エラーが発生しています:{e}')
+            abort(500)
+        finally:
+            db_pool.release(conn)
+
+''' 
     @classmethod
     def delete(cls, like_id):
     conn = pool.get_conn()

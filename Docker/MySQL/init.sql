@@ -77,42 +77,50 @@ CREATE TABLE
     medias (
         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
         user_id BIGINT UNSIGNED NOT NULL,
-        post_id BIGINT UNSIGNED NOT NULL,
 	file_name VARCHAR(255) NULL,
         created_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
         updated_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
         PRIMARY KEY (id),
         KEY idx_medias_user_id (user_id),
-        KEY idx_medias_post_id (post_id),
-        CONSTRAINT fk_medias_user FOREIGN KEY (user_id) REFERENCES users (id),
-        CONSTRAINT fk_medias_post FOREIGN KEY (post_id) REFERENCES posts (id)
+        CONSTRAINT fk_medias_user FOREIGN KEY (user_id) REFERENCES users (id)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE
     post_medias (
         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-        user_id BIGINT UNSIGNED NOT NULL,
         post_id BIGINT UNSIGNED NOT NULL,
 	media_id BIGINT UNSIGNED NOT NULL,
         PRIMARY KEY (id),
-        KEY idx_post_medias_conn_user_id (user_id),
         KEY idx_post_medias_conn_post_id (post_id),
         KEY idx_post_medias_conn_media_id (media_id),
-        CONSTRAINT fk_post_medias_user FOREIGN KEY (user_id) REFERENCES users (id),
         CONSTRAINT fk_post_medias_post FOREIGN KEY (post_id) REFERENCES posts (id),
         CONSTRAINT fk_post_medias_media FOREIGN KEY (media_id) REFERENCES medias (id)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE follows (
+    follower_id BIGINT UNSIGNED NOT NULL,
+    followed_id BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (follower_id, followed_id),
+    KEY idx_followed (followed_id),
+    CONSTRAINT fk_follows_follower FOREIGN KEY (follower_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_follows_followed FOREIGN KEY (followed_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
 INSERT INTO users (name, email, password)
 VALUES 
-  ('山田太郎', 'taro@example.com', '937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244'),
-  ('鈴木二郎', 'jiro@example.com', '937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244');
+  ('山田太郎', 'taro@example.com', '$argon2id$v=19$m=65536,t=3,p=4$TuRgOIrd3A2HL6daX6kYdg$4iZGaBeVSzkORfmPawS5NXCFgf8ZoXPvETqA0OgqM7M'),
+  ('鈴木二郎', 'jiro@example.com', '$argon2id$v=19$m=65536,t=3,p=4$TuRgOIrd3A2HL6daX6kYdg$4iZGaBeVSzkORfmPawS5NXCFgf8ZoXPvETqA0OgqM7M');
 
 INSERT INTO posts (user_id, content)
 VALUES
   (1, 'こんにちは！初めての投稿です。'),
   (1, '今日はとても良い天気ですね。'),
-  (1, '今日も勉強頑張ります！');
+  (1, '今日も勉強頑張ります！'),
+  (2, 'おはよう！初めての投稿です。'),
+  (2, '今日は晴れそうですね。'),
+  (2, '今日から勉強頑張ります！');
+
 
 
 INSERT INTO comments (user_id, post_id, content)
