@@ -40,14 +40,19 @@
 		        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 		        <input type="hidden" name="post_id" value="{{ post.id }}" />
 		        <button type="submit" class="likeBtn">
-			        <i class="fa-regular fa-heart"></i> いいね
+                    {% if post.is_liked_by_me %}
+                    <i class="fa-solid fa-heart"></i> いいね
+                    {% else %}
+                    <i class="fa-regular fa-heart"></i> いいね
+                    {% endif %}
 		        </button>
 	        </form>
 	        {# いいねボタン試作 ここまで #}
 		</article>
-	</div>
 	{% endfor %}
 	<a href="{{ url_for('logout') }}">ログアウト</a>
 </div>
+<script src="{{ url_for('static', filename='js/like.js') }}"></script>
 
 {% endblock %} 
+	

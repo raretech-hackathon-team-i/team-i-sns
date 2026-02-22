@@ -243,14 +243,26 @@ class PostMedia:
 # いいねクラス
 class Like:
     @classmethod
-    def create(cls, user_id, post_id, comment_id):
+    def toggle(cls, user_id, post_id, comment_id):
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
-                sql = "INSERT INTO likes (user_id, post_id, comment_id) VALUES (%s, %s, %s);"
-                cur.execute(sql, (user_id, post_id, comment_id))
+                check_sql = "SELECT id FROM likes WHERE user_id = %s AND post_id = %s;"
+                cur.execute(check_sql, (user_id, post_id))
+                is_existing = cur.fetchone()
+
+                if is_existing:
+                    delete_sql = "DELETE FROM likes WHERE user_id = %s AND post_id = %s;"
+                    cur.execute(delete_sql, (user_id, post_id))
+                    status = False
+                else:
+                    insert_sql = "INSERT INTO likes (user_id, post_id, comment_id) VALUES (%s, %s, %s);"
+                    cur.execute(insert_sql, (user_id, post_id, comment_id))
+                    status = True
             conn.commit()
+            return status
         except pymysql.Error as e:
+            conn.rollback()
             print(f'エラーが発生しています:{e}')
             abort(500)
         finally:
