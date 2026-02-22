@@ -1,7 +1,22 @@
+body.scroll-page {
+  overflow-y: auto;
+}
+
 .post-container {
 	max-width: 100%;
-	margin: 0 auto;
-	padding: 16px;
+	margin: 50px 40px;
+	padding: 40px;
+}
+
+.profile-edit a {
+	border: none;
+	border-radius: 10px;
+	background-color: aliceblue;
+	padding: 8px;
+	margin-bottom: 20px;
+	box-sizing: border-box;
+	color: rgb(232, 25, 125);
+	text-decoration: none;
 }
 
 .post-form textarea,
@@ -9,6 +24,7 @@
 	width: 100%;
 	padding: 8px;
 	box-sizing: border-box;
+	margin-top: 20px;
 }
 
 .post-card {
@@ -36,4 +52,29 @@
 	padding: 8px 12px;
 	border: 1px solid #ddd;
 	text-decoration: none;
+}
+
+
+.comment-container {
+	margin: 50px 40px;
+	padding: 40px;
+	background-color: #d5e6df76;
+	border-radius: 10px;
+}
+
+
+/* いいねボタンが赤にならない */
+.likeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+}
+
+.likeBtn i {
+  margin-right: 4px;
+}
+
+.likeBtn .fa-solid {
+  color: red;
 }
