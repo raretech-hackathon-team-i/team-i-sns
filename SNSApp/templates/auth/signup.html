@@ -15,13 +15,13 @@
       </div>
 
       <div>
-        
+
         <input type="text" placeholder="メールアドレス" id="email" name="email" />
         <div class="error-message" id="emailError"></div>
       </div>
 
       <div>
-        
+
         <input type="password" placeholder="パスワード" name="password" id="password" />
         <div class="error-message" id="passwordError"></div>
         <!-- パスワード強度表示） -->
@@ -38,6 +38,14 @@
         <div class="error-message" id="confirmError"></div>
       </div>
 
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      {% for message in messages %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
       <div class="auth-button-container">
         <button class="auth-button" type="submit" id="signupBtn" disabled>新規登録</button>
         <a class="switch-auth-mode" href="{{ url_for('top_view') }}">
@@ -46,9 +54,9 @@
       </div>
     </form>
   </div>
-  </div>
+</div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
-  <script src="{{ url_for('static', filename='js/password-strength.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+<script src="{{ url_for('static', filename='js/password-strength.js') }}"></script>
 
-  {% endblock %}
+{% endblock %}

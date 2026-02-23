@@ -4,29 +4,29 @@
 <head>
 	<meta charset="UTF-8">
 	<title>{% block title %}{% endblock %}</title>
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap">
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap">
+	<link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&family=Montserrat:wght@700&display=swap">
+
+	<link rel="stylesheet" 
+	      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
-        {% block extra_css %}
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-        {% endblock%}
+
+
+    {% block extra_css %}{% endblock%}
+
+
 </head>
 
-<body>
+<body class="{% block body_class %}{% endblock %}">
+
 	{% if not hide_header %}
 	{% include "common/header.html" %}
 	{% endif %}
 
+
 	<main class="main-content">
-		{% with messages=get_flashed_messages() %}
-		{% if messages %}
-		<ul class="flash">
-			{% for message in messages %}
-			<li>{{ message }}</li>
-			{% endfor %}
-		</ul>
-		{% endif %}
-		{% endwith %}
+	
 		{% block content %}{% endblock %}
 	</main>
 
