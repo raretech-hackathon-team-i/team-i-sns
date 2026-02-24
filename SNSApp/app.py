@@ -249,6 +249,7 @@ def posts_detail_view(post_id):
     post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
     u = User.get_user_by_id(post['user_id'])
     post['user_name'] = u['name']
+    post['medias'] = Media.find_by_post_id(post_id)
 
     comments = Comment.get_by_post_id(post_id)
     for comment in comments:
