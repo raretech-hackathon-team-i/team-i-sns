@@ -69,6 +69,10 @@ body.scroll-page {
 	margin-top: 20px;
 }
 
+.post-form textarea {
+	background-color: #eee;
+}
+
 .post-images {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
@@ -120,7 +124,6 @@ body.scroll-page {
 }
 
 
-/* いいねボタンが赤にならない */
 .likeBtn {
 	background: none;
 	border: none;
@@ -161,4 +164,5 @@ body.scroll-page {
 .likeBtn.liked {
     color: #ff0;
     border-color: #ff0;
+
 }
