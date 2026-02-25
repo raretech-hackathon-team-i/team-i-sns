@@ -279,13 +279,23 @@ def toggle_like(post_id):
     if user_id is None:
         return jsonify({'status': 'error', 'message': 'login_required'}), 401
 
-    result = Like.toggle(user_id, post_id, None)
+    comment_id = request.form.get('comment_id')
+
+    if comment_id:
+        result = Like.toggle(user_id, post_id, comment_id)
+    else:
+        result = Like.toggle(user_id, post_id, None)
 
     return jsonify({
         'status': 'success',
         'is_liked': result,
         'post_id': post_id
         })
+
+    if comment_id:
+        response_data['comment_id'] = comment_id
+
+    return jsonify(response_data)
 
 #フォローリスト一覧ページ
 @app.get('/profile/<int:user_id>/follows')
