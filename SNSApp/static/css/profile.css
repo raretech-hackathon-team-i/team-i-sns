@@ -154,13 +154,13 @@
 
 .profile-form div {
   display: flex;
-  align-items: center;   /* 縦中央 */
+  align-items: center;   
   margin-bottom: 15px;
 }
 
 .form-label {
   width: 120px;
-  text-align: right;     /* 右寄せ */
+  text-align: right;     
   margin-right: 15px;
 }
 
