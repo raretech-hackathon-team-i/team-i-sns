@@ -21,11 +21,11 @@
     </div>
     {# DEBUG: {{ post.keys() }} #}
     {# DEBUG: {{ post['medias'] }} #}
-    <form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}" style="display: inline">
+    <form method="POST" action="{{ url_for('toggle_like', post_id=post['id']) }}" style="display: inline">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <input type="hidden" name="post_id" value="{{ post.id }}" />
+        <input type="hidden" name="post_id" value="{{ post['id'] }}" />
         <button type="submit" class="likeBtn">
-            {% if post.is_liked_by_me %}
+            {% if post['is_liked_by_me'] %}
             <i class="fa-solid fa-heart"></i> いいね
             {% else %}
             <i class="fa-regular fa-heart"></i> いいね
@@ -50,21 +50,22 @@
     {% if comments %}
       {% for comment in comments %}
         <div class="comment">{{ comment['content'] }}</div>
+        <form method="POST" action="{{ url_for('toggle_like', post_id=post['id']) }}" style="display: inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" name="post_id" value="{{ post['id'] }}" />
+            <input type="hidden" name="comment_id" value="{{ comment['id'] }}" />
+            <button type="submit" class="likeBtn">
+                {% if comment['is_liked_by_me'] %}
+                <i class="fa-solid fa-heart"></i> いいね
+                {% else %}
+                <i class="fa-regular fa-heart"></i> いいね
+                {% endif %}
+            </button>
+        </form>
       {% endfor %}
     {% else %}
       <p>コメントがありません</p>
     {% endif %}
-    <form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}" style="display: inline">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <input type="hidden" name="post_id" value="{{ post.id }}" />
-        <button type="submit" class="likeBtn">
-            {% if post.is_liked_by_me %}
-            <i class="fa-solid fa-heart"></i> いいね
-            {% else %}
-            <i class="fa-regular fa-heart"></i> いいね
-            {% endif %}
-        </button>
-    </form>
   </div>
 
   <p><a class="btn" href="{{ url_for('posts_view') }}">←投稿一覧へ戻る</a></p>

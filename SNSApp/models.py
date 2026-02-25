@@ -247,13 +247,22 @@ class Like:
         conn = db_pool.get_conn()
         try:
             with conn.cursor() as cur:
-                check_sql = "SELECT id FROM likes WHERE user_id = %s AND post_id = %s;"
-                cur.execute(check_sql, (user_id, post_id))
+                if comment_id:
+                    check_sql = "SELECT id FROM likes WHERE user_id = %s AND post_id = %s AND comment_id = %s;"
+                    params =(user_id, post_id, comment_id)
+                else:
+                    check_sql = "SELECT id FROM likes WHERE user_id = %s AND post_id = %s AND comment_id IS NULL;"
+                    params =(user_id, post_id)
+                cur.execute(check_sql, params)
                 is_existing = cur.fetchone()
-
+                
                 if is_existing:
-                    delete_sql = "DELETE FROM likes WHERE user_id = %s AND post_id = %s;"
-                    cur.execute(delete_sql, (user_id, post_id))
+                    if comment_id:
+                        delete_sql = "DELETE FROM likes WHERE user_id = %s AND post_id = %s AND comment_id = %s;"
+                    else:
+                        delete_sql = "DELETE FROM likes WHERE user_id = %s AND post_id = %s AND comment_id IS NULL;"
+
+                    cur.execute(delete_sql, params)
                     status = False
                 else:
                     insert_sql = "INSERT INTO likes (user_id, post_id, comment_id) VALUES (%s, %s, %s);"
