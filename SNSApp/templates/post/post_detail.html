@@ -13,6 +13,25 @@
     {% else %}
       <p class="post-body">(投稿データは未接続です)</p>
     {% endif %}
+
+    <div class="post-images">
+        {% for media in post['medias'] %}
+            <img src="{{ url_for('static', filename='uploads/' + media['file_name']) }}">
+        {% endfor %}
+    </div>
+    {# DEBUG: {{ post.keys() }} #}
+    {# DEBUG: {{ post['medias'] }} #}
+    <form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}" style="display: inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <input type="hidden" name="post_id" value="{{ post.id }}" />
+        <button type="submit" class="likeBtn">
+            {% if post.is_liked_by_me %}
+            <i class="fa-solid fa-heart"></i> いいね
+            {% else %}
+            <i class="fa-regular fa-heart"></i> いいね
+            {% endif %}
+        </button>
+    </form>
   </div>
 
   <div class="comment-form">
@@ -22,12 +41,6 @@
       <textarea name="content" rows="3" placeholder="コメントを書く"></textarea>
       <button type="submit">コメント</button>
     </form>
-    
-    <form action="{{ url_for('toggle_like', post_id=post.id) }}" method="post" class="inline">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button class="btn" type="submit">いいね</button>
-    </form>
-
   {% else %}
     <p>※投稿が未接続のためコメントできません</p>
   {% endif %}
@@ -41,10 +54,22 @@
     {% else %}
       <p>コメントがありません</p>
     {% endif %}
+    <form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}" style="display: inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <input type="hidden" name="post_id" value="{{ post.id }}" />
+        <button type="submit" class="likeBtn">
+            {% if post.is_liked_by_me %}
+            <i class="fa-solid fa-heart"></i> いいね
+            {% else %}
+            <i class="fa-regular fa-heart"></i> いいね
+            {% endif %}
+        </button>
+    </form>
   </div>
 
   <p><a class="btn" href="{{ url_for('posts_view') }}">←投稿一覧へ戻る</a></p>
 
 </div>
+<script src="{{ url_for('static', filename='js/like.js') }}"></script>
 {% endblock %}
 

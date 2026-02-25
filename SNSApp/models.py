@@ -377,21 +377,6 @@ class Follow:
         finally:
             db_pool.release(conn)
 
-''' 
-    @classmethod
-    def delete(cls, like_id):
-    conn = pool.get_conn()
-    try:
-        with conn.cursor() as cur:
-            sql = "DELETE FROM likes WHERE user_id = %s AND post_id = %s;"
-            cur.execute(sql, (user_id, post_id, comment_id))
-        conn.commit()
-    except pymysql.Error as e:
-        print(f'エラーが発生しています:{e}')
-        abort(500)
-    finally:
-        db_pool.release(conn)
-'''
 '''
     @classmethod
     def get_count_by_post_id(cls, id):
