@@ -20,8 +20,11 @@
 			<form method="POST" action="{{ url_for('posts_process') }}" enctype=multipart/form-data>
 				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 				<textarea name="content" rows="4" placeholder="今何してる？"></textarea>
-				<input type="file" name="files[]" multiple />
-				<button type="submit">投稿</button>
+				 <input type="file" id="fileInput" name="files[]" multiple hidden />
+				  <label for="fileInput" class="fileBtn">
+					ファイルを選択
+				  </label>
+				<button type="submit" class="submitBtn">投稿する</button>
 			</form>
 		</div>
 		{# 投稿list #}
@@ -47,17 +50,17 @@
 
 
 				{# いいねボタン試作 ここから #}
-				<form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}" style="display: inline">
-					<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-					<input type="hidden" name="post_id" value="{{ post.id }}" />
-					<button type="submit" class="likeBtn">
-						{% if post.is_liked_by_me %}
-						<i class="fa-solid fa-heart"></i> いいね
-						{% else %}
-						<i class="fa-regular fa-heart"></i> いいね
-						{% endif %}
-					</button>
-				</form>
+				 <form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}" style="display: inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <input type="hidden" name="post_id" value="{{ post.id }}" />
+                    <button type="submit" class="likeBtn">
+                        {% if post.is_liked_by_me %}
+                        <i class="fa-solid fa-heart"></i> いいね
+                        {% else %}
+                        <i class="fa-regular fa-heart"></i> いいね
+                        {% endif %}
+                    </button>
+                </form>
 				{# いいねボタン試作 ここまで #}
 			</article>
 			{% else %}
