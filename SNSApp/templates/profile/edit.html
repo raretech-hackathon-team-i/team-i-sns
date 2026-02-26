@@ -12,17 +12,17 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <!-- ===== フォームフィールド ===== -->
     <div>
-      <label>ユーザー名</label>
+      <label class="form-label">ユーザー名</label>
       <input type="text" placeholder="ユーザー名" name="user_name" value="{{ user.name }}">
     </div>
     <div>
-      <label>自己紹介文</label>
+      <label class="form-label">自己紹介文</label>
       <textarea placeholder="自己紹介文を入れてください" name="user_introduce">{{ user.introduce }}</textarea>
     </div>
 
     <div class="label">アイコン画像(UIのみ)</label>
       <input class="input" type="file" name="avatar" accept="image/*">
-
+    </div>
       <div class="profile-button-container">
         <button class="profile-button" type="submit">変更する</button>
         <a class="btn btn-secondary" href="{{ url_for('profile_view', user_id=user_id) }}">キャンセル</a>

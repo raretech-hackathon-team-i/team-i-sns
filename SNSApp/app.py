@@ -33,7 +33,7 @@ get_db_pool()
 def top_view():
     if "user_id" in session:
         return redirect(url_for("posts_view"))
-    return render_template("auth/top.html", hide_header=True)
+    return render_template("auth/top.html", hide_header=True, body_class="top-bg")
 
 
 # サインインページ
