@@ -186,6 +186,17 @@ body.scroll-page {
     transform: scale(1.3);
 }
 
+.deleteBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #5c5a5a;
+}
+.deleteBtn:hover {
+    color: red;
+}
+
+=======
 body.scroll-page .main-content {
     transform: scale(1);
 }
