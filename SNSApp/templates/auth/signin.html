@@ -14,11 +14,11 @@
 
       <!-- ===== フォームフィールド ===== -->
       <div>
-        <input type="text" placeholder="Email" name="email" />
+        <input type="text" placeholder="メールアドレス" name="email" />
       </div>
 
       <div>
-        <input type="password" placeholder="Password" name="password" />
+        <input type="password" placeholder="パスワード" name="password" />
       </div>
 
       {% with messages = get_flashed_messages(with_categories=true) %}
@@ -31,9 +31,9 @@
 
 
       <div class="auth-button-container">
-        <button class="auth-button" type="submit">Sign In</button>
+        <button class="auth-button" type="submit">ログイン</button>
         <a class="switch-auth-mode" href="{{ url_for('signup_view')}}">
-          Sign up here
+          新規登録はこちら
         </a>
       </div>
     </form>

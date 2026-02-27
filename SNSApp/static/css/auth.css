@@ -12,13 +12,13 @@
     letter-spacing: 0.2em;
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    width: 300%;
+    width: 200%;
     border-radius: 50px;
     color: white;
     background: var(--accent);
     box-shadow: 4px 4px 2px rgb(28 19 19 / 30%);
-    opacity: 0.7;
-    font-size: 1.2rem;
+    opacity: 0.9;
+    font-size: 1.5rem;
     transition: background-color 0.3s, color 0.3s, transform 0.2s;
     border-left: 1px solid rgba(255, 255, 255, 0.3);
     border-top: 1px solid rgba(255, 255, 255, 0.3);
@@ -30,10 +30,7 @@
     transform: translateY(-2px);
 }
 
-.btn:active {
-    background-color: #2c5ca8;
-    transform: translateY(0);
-}
+
 
 .auth-container {
 
@@ -112,7 +109,7 @@
 }
 
 .auth-form input::placeholder {
-    font-family: "Roboto", sans-serif;
+    font-family: Kosugi maru, sans-serif;
     font-weight: 900;
     margin-bottom: 60px;
     color: #fff;
@@ -137,10 +134,10 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
-
+    letter-spacing: 0.2rem;
     width: 100%;
     font-weight: 900;
-    box-shadow: 3px 3px 1px 0px rgb(28 19 19 / 30%);;
+    box-shadow: 3px 3px 1px 0px rgb(28 19 19 / 30%);
     background: var(--accent);
     border-radius: 50px;
     color: #fff;
@@ -167,6 +164,7 @@
     text-decoration: none;
     transition: color 0.3s;
     cursor: pointer;
+    letter-spacing: 0.1rem;
 }
 
 .switch-auth-mode:hover {

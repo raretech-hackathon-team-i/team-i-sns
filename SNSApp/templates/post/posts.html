@@ -62,6 +62,7 @@
                     </button>
                 </form>
 				{# いいねボタン試作 ここまで #}
+
                 <form method="GET" action="{{ url_for('delete_post', post_id=post.id) }}" style="display: inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                     <input type="hidden" name="post_id" value="{{ post.id }}" />
