@@ -5,45 +5,49 @@
 
 {% endblock %}
 {% block content %}
+<div class="profile-page-warp">
+  <div class="user-profile">
+    <div class="avatar-circle">
+      {{ (user.name or "U")[0] }}
+    </div>
 
-<div class="user-profile">
-  <h2>{{user.name}}</h2>
-  <p>{{ user.introduce or '' }}</p>
-  <p>フォロワー数：{{ followers_count }}</p>
-  <p>フォロー数：{{ follows_count }}</p>
-</div>
+    <h2>{{user.name}}</h2>
+    <p>{{ user.introduce or '' }}</p>
+    <p>フォロワー数：{{ followers_count }}</p>
+    <p>フォロー数：{{ follows_count }}</p>
+  </div>
 
-<div class="profile-links">
-  <a href="{{ url_for('follows_view', user_id=user_id) }}">フォローリスト</a>
-  <a href="{{ url_for('followers_view', user_id=user_id) }}">フォロワーリスト</a>
-</div>
+  <div class="profile-links">
+    <a href="{{ url_for('follows_view', user_id=user_id) }}">フォローリスト</a>
+    <a href="{{ url_for('followers_view', user_id=user_id) }}">フォロワーリスト</a>
+  </div>
 
-{% if session.get('user_id') and session.get('user_id') != user_id %}
-  {% if is_following %}
-    <form action="{{ url_for('unfollow_process', user_id=user_id) }}" method="post" class="inline">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button class="btn" type="submit">フォロー解除</button>
-    </form>
-  {% else %}
-    <form action="{{ url_for('follow_process', user_id=user_id) }}" method="post" class="inline">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button class="btn" type="submit">フォロー</button>
-    </form>
+  {% if session.get('user_id') and session.get('user_id') != user_id %}
+    {% if is_following %}
+      <form action="{{ url_for('unfollow_process', user_id=user_id) }}" method="post" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn" type="submit">フォロー解除</button>
+      </form>
+    {% else %}
+      <form action="{{ url_for('follow_process', user_id=user_id) }}" method="post" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn" type="submit">フォロー</button>
+      </form>
+    {% endif %}
   {% endif %}
-{% endif %}
 
-<div class="post-list">
-  {% for post in posts %}
-    <article class="post-card">
-      <div class="post-meta">
-        <span class="post-user">{{ post['user_name'] }}</span>
-        <time class="post-time">{{ post.created_at }}</time>
-      </div>
-      <p class="post-body">{{ post.content }}</p>
+  <div class="post-list">
+    {% for post in posts %}
+      <article class="post-card">
+        <div class="post-meta">
+          <span class="post-user">{{ post['user_name'] }}</span>
+          <time class="post-time">{{ post.created_at }}</time>
+        </div>
+        <p class="post-body">{{ post.content }}</p>
 
-      <a class="post-link" href="{{ url_for('posts_detail_view', post_id=post['id']) }}">詳細</a>
-    </article>
-  {% endfor %}
+        <a class="post-link" href="{{ url_for('posts_detail_view', post_id=post['id']) }}">詳細</a>
+      </article>
+    {% endfor %}
+  </div>
 </div>
-
 {% endblock %}
