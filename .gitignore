@@ -162,3 +162,4 @@ cython_debug/
 /SNSApp/static/gen/*
 .DS_Store
 app.py
+SNSApp/static/uploads/

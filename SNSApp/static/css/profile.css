@@ -74,9 +74,10 @@
 }
 
 .user-card {
-	display: 12px;
-	gap: 1px solid #ddd;
-	margin-top: 10px;
+	padding: 12px;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	margin-top: 10px;;
 }
 
 .avatar-inline {
@@ -90,7 +91,7 @@
 }
 
 .label {
-	font-weight: 10px;
+	font-weight: 700;
 }
 
 .input,
@@ -173,4 +174,63 @@ gap: 20px;
 .user_list {
 	display: flex;
 	flex-direction: column;
+}
+
+
+.user-profile {
+  max-width: 800px;
+  margin: 60px auto 0;
+  padding: 24px 20px;
+  text-align: center;
+
+  background-color: rgba(255, 255, 255, 8%);
+  border-radius: 20px;
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 20px 20px 40px -6px;
+}
+
+.user-profile .avatar-circle {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 14px;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(6px);
+}
+
+.profile-links {
+  max-width: 800px;
+  margin: 12px auto 0;
+  padding: 0 20px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.profile-links a {
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.10);
+}
+
+.profile-page-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.post-list {
+  width: min(800px, 92vw);
+  margin: 0 auto 60px;
 }

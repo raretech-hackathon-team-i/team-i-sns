@@ -4,11 +4,9 @@ body.scroll-page {
 
 
 .post-container {
-	display: flex;
-	flex: 1;
-	width: 100%;
-	margin: 100px 0 0 30px;
-	padding: 10px;
+	display: 720px;
+	margin: 60px auto 0;
+	padding: 0 16px;
 	align-items: flex-start;
 }
 
@@ -16,11 +14,12 @@ body.scroll-page {
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
-	width: 250px;
+	width: 100px;
 	flex-shrink: 0;
-	position: sticky;
+	position: static;
 	top: 250px;
-	height: calc(100vh - 250px);
+	height: auto;
+	margin-bottom: 16px;
 }
 
 .sidebar-btn {
@@ -197,3 +196,7 @@ body.scroll-page {
     color: red;
 }
 
+=======
+body.scroll-page .main-content {
+    transform: scale(1);
+}
