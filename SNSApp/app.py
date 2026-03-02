@@ -15,12 +15,13 @@ from models import User , Post, Comment, get_db_pool, Like, Follow, Media, PostM
 # 定数定義
 EMAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 SESSION_DAYS = 30
-UPLOAD_FOLDER = './static/uploads'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', uuid.uuid4().hex)
 app.permanent_session_lifetime = timedelta(days=SESSION_DAYS)
+
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 csrf = CSRFProtect(app)
@@ -126,23 +127,39 @@ def profile_view(user_id):
     my_user_id = session.get('user_id')
     if my_user_id is None:
         return redirect(url_for('signin_view'))
-    else:
-        user = User.get_user_by_id(user_id)
-        posts = Post.get_by_user_id(user_id) 
-        for post in posts:
-            post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
-            u = User.get_user_by_id(post['user_id'])
-            post['user_name'] = u['name']
-            post['user_introduce'] = u.get('introduce') 
-        followers_count = Follow.count_followers(user_id)
-        follows_count   = Follow.count_follows(user_id)
 
-        # （フォロー済み判定）
-        is_following = False
-        if my_user_id != user_id:
-            is_following = Follow.is_following(my_user_id, user_id)
+    user = User.get_user_by_id(user_id)
+    posts = Post.get_by_user_id(user_id)
 
-        return render_template("profile/profile.html",user=user,posts=posts,user_id=user_id,followers_count=followers_count,follows_count=follows_count,is_following=is_following,)
+    for post in posts:
+        post['created_at'] = post['created_at'].strftime('%Y-%m-%d %H:%M')
+        u = User.get_user_by_id(post['user_id'])
+        post['user_name'] = u['name']
+        post['user_introduce'] = u.get('introduce')
+
+    followers_count = Follow.count_followers(user_id)
+    follows_count = Follow.count_follows(user_id)
+
+    # フォロー済み判定
+    is_following = False
+    if my_user_id != user_id:
+        is_following = Follow.is_following(my_user_id, user_id)
+
+    # 共通フォロー（ログインユーザー != 表示対象 のときだけ）
+    mutual_follows = []
+    if my_user_id != user_id:
+        mutual_follows = Follow.get_mutual_follows(my_user_id, user_id)
+
+    return render_template(
+        "profile/profile.html",
+        user=user,
+        posts=posts,
+        user_id=user_id,
+        followers_count=followers_count,
+        follows_count=follows_count,
+        is_following=is_following,
+        mutual_follows=mutual_follows,
+    )
 
 
 # プロフィール編集ページ
@@ -199,7 +216,6 @@ def posts_process():
     # データ取得
     content = request.form.get("content","").strip()
     files = request.files.getlist('files[]')
-    files = request.files.getlist('files[]')
     print(f"DEBUG: 届いたファイルの数 = {len(files)}") # これを足す
     for f in files:
         print(f"DEBUG: ファイル名 = {f.filename}")
@@ -208,12 +224,25 @@ def posts_process():
     # 画像の保存と登録
     for file in files:  
         if file and file.filename != '' and allowed_file(file.filename):
+            
+            # 元ファイル名を安全化（拡張子取得用）
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            # 拡張子取得
+            ext = filename.rsplit('.', 1)[1].lower()
+
+            # UUIDで保存名生成（衝突100％回避）
+            save_name = f"{uuid.uuid4().hex}.{ext}"
+
+            # 保存
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], save_name))
+
             # Mediaテーブルに登録
-            media_id = Media.create(user_id, filename)
+            media_id = Media.create(user_id, save_name)
+            
             # PostMediaテーブルに登録
             PostMedia.create(post_id, media_id)
+
     flash('投稿が完了しました', 'success')
     return redirect(url_for('posts_view'))
 
@@ -279,21 +308,16 @@ def toggle_like(post_id):
     if user_id is None:
         return jsonify({'status': 'error', 'message': 'login_required'}), 401
 
-    comment_id = request.form.get('comment_id')
+    comment_id = request.form.get('comment_id') or None
+    is_liked = Like.toggle(user_id, post_id, comment_id)
 
-    if comment_id:
-        result = Like.toggle(user_id, post_id, comment_id)
-    else:
-        result = Like.toggle(user_id, post_id, None)
-
-    return jsonify({
-        'status': 'success',
-        'is_liked': result,
-        'post_id': post_id
-        })
-
-    if comment_id:
-        response_data['comment_id'] = comment_id
+    response_data = {
+        'status': is_liked,
+        'is_liked': is_liked,
+        'post_id': post_id,
+    }
+    if comment_id is not None:
+        response_data['comment_id'] = int(comment_id)
 
     return jsonify(response_data)
 
@@ -380,7 +404,3 @@ def not_found(error):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-
-
-
-

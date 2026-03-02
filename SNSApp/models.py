@@ -386,6 +386,31 @@ class Follow:
         finally:
             db_pool.release(conn)
 
+
+    # 共通フォロー（自分と相手が共通でフォローしているユーザー一覧）
+    @classmethod
+    def get_mutual_follows(cls, my_id, target_id):
+        conn = db_pool.get_conn()
+        cur = conn.cursor()
+
+        sql = """
+            SELECT u.id, u.name
+            FROM follows f1
+            JOIN follows f2
+                ON f1.followed_id = f2.followed_id
+            JOIN users u
+                ON u.id = f1.followed_id
+            WHERE f1.follower_id = %s
+              AND f2.follower_id = %s
+        """
+
+        cur.execute(sql, (my_id, target_id))
+        result = cur.fetchall()
+
+        cur.close()
+        db_pool.release(conn)
+
+        return result
 '''
     @classmethod
     def get_count_by_post_id(cls, id):
